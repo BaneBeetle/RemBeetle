@@ -1,0 +1,8 @@
+static/libs/* linguist-vendored
+frontend/models/**/*.onnx filter=lfs diff=lfs merge=lfs -text
+frontend/models/**/*.int8.onnx filter=lfs diff=lfs merge=lfs -text
+*.moc3 filter=lfs diff=lfs merge=lfs -text
+*.model3.json filter=lfs diff=lfs merge=lfs -text
+textures/*.png filter=lfs diff=lfs merge=lfs -text
+frontend/models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/** filter=lfs diff=lfs merge=lfs -text
+*.onnx filter=lfs diff=lfs merge=lfs -text
