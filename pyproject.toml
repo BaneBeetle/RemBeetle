@@ -1,5 +1,5 @@
 [project]
-name = "open-llm-vtuber"
+name = "RemAI"
 version = "1.2.0"
 description = "Talk to any LLM with hands-free voice interaction, voice interruption, and Live2D taking face running locally across platforms"
 readme = "README.md"
@@ -52,7 +52,7 @@ channels = ["conda-forge"]
 platforms = ["win-64", "linux-64"]
 
 [tool.pixi.pypi-dependencies]
-open-llm-vtuber = { path = ".", editable = true }
+RemAI = { path = ".", editable = true }
 
 [tool.pixi.dependencies]
 cudnn = ">=8.0,<9"

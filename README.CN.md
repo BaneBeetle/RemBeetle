@@ -1,25 +1,25 @@
 
 ![](./assets/banner.cn.jpg)
 
-<h1 align="center">Open-LLM-VTuber</h1>
+<h1 align="center">RemAI</h1>
 <h3 align="center">
 
-[![GitHub release](https://img.shields.io/github/v/release/t41372/Open-LLM-VTuber)](https://github.com/t41372/Open-LLM-VTuber/releases)
-[![license](https://img.shields.io/github/license/t41372/Open-LLM-VTuber)](https://github.com/t41372/Open-LLM-VTuber/blob/master/LICENSE)
-[![CodeQL](https://github.com/Open-LLM-VTuber/Open-LLM-VTuber/actions/workflows/codeql.yml/badge.svg)](https://github.com/Open-LLM-VTuber/Open-LLM-VTuber/actions/workflows/codeql.yml)
-[![Ruff](https://github.com/Open-LLM-VTuber/Open-LLM-VTuber/actions/workflows/ruff.yml/badge.svg)](https://github.com/Open-LLM-VTuber/Open-LLM-VTuber/actions/workflows/ruff.yml)
-[![Docker](https://img.shields.io/badge/t41372%2FOpen--LLM--VTuber-%25230db7ed.svg?logo=docker&logoColor=blue&labelColor=white&color=blue)](https://hub.docker.com/r/t41372/open-llm-vtuber) 
+[![GitHub release](https://img.shields.io/github/v/release/t41372/RemAI)](https://github.com/t41372/RemAI/releases)
+[![license](https://img.shields.io/github/license/t41372/RemAI)](https://github.com/t41372/RemAI/blob/master/LICENSE)
+[![CodeQL](https://github.com/RemAI/RemAI/actions/workflows/codeql.yml/badge.svg)](https://github.com/RemAI/RemAI/actions/workflows/codeql.yml)
+[![Ruff](https://github.com/RemAI/RemAI/actions/workflows/ruff.yml/badge.svg)](https://github.com/RemAI/RemAI/actions/workflows/ruff.yml)
+[![Docker](https://img.shields.io/badge/t41372%2FOpen--LLM--VTuber-%25230db7ed.svg?logo=docker&logoColor=blue&labelColor=white&color=blue)](https://hub.docker.com/r/t41372/RemAI) 
 [![QQ群](https://img.shields.io/badge/QQ群-792615362-white?style=flat&logo=qq&logoColor=white)](https://qm.qq.com/q/ngvNUQpuKI)
 [![QQ频道](https://img.shields.io/badge/QQ频道(开发)-pd93364606-white?style=flat&logo=qq&logoColor=white)](https://pd.qq.com/s/tt54r3bu)
 
 [![BuyMeACoffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/yi.ting)
 [![](https://dcbadge.limes.pink/api/server/3UDA8YFDXx)](https://discord.gg/3UDA8YFDXx)
 
-[英文 README](https://github.com/t41372/Open-LLM-VTuber/blob/main/README.md) | 中文 README
+[英文 README](https://github.com/t41372/RemAI/blob/main/README.md) | 中文 README
 
-[使用文档](https://open-llm-vtuber.github.io/docs/quick-start) | | [![项目路线图](https://img.shields.io/badge/项目路线图-GitHub_Project-yellow)](https://github.com/orgs/Open-LLM-VTuber/projects/2)
+[使用文档](https://RemAI.github.io/docs/quick-start) | | [![项目路线图](https://img.shields.io/badge/项目路线图-GitHub_Project-yellow)](https://github.com/orgs/RemAI/projects/2)
 
-<a href="https://trendshift.io/repositories/12358" target="_blank"><img src="https://trendshift.io/api/badge/repositories/12358" alt="t41372%2FOpen-LLM-VTuber | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+<a href="https://trendshift.io/repositories/12358" target="_blank"><img src="https://trendshift.io/api/badge/repositories/12358" alt="t41372%2FRemAI | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 
 </h3>
 
@@ -40,15 +40,15 @@
 # ⭐️ 项目简介
 
 
-**Open-LLM-VTuber** 是一款独特的**语音交互 AI 伴侣**，它不仅支持**实时语音对话**和**视觉感知**，还配备了生动的 **Live2D 形象**。所有功能都可以在你的电脑上完全离线运行！
+**RemAI** 是一款独特的**语音交互 AI 伴侣**，它不仅支持**实时语音对话**和**视觉感知**，还配备了生动的 **Live2D 形象**。所有功能都可以在你的电脑上完全离线运行！
 
 你可以把它当作你的专属 AI 伴侣 —— 无论你想要一个`虚拟女友`、`男友`、`萌宠`还是其他角色，它都能满足你的期待。项目完美支持 `Windows`、`macOS` 和 `Linux` 系统，并提供两种使用方式：网页版和桌面客户端（特别支持**透明背景的桌宠模式**，让 AI 伴侣在屏幕上的任意位置时刻陪伴着你）。
 
 虽然长期记忆功能暂时下线（即将回归），但得益于聊天记录的持久化存储，你随时都能继续之前未完的对话，不会丢失任何珍贵的互动瞬间。
 
-在后端支持方面，我们集成了丰富多样的 LLM 对话引擎、文本转语音模型和语音识别方案。如果你想让 AI 伴侣更有个性，还可以参考 [角色定制指南](https://open-llm-vtuber.github.io/docs/user-guide/live2d) 来自定义专属的 AI 伴侣形象和人设。
+在后端支持方面，我们集成了丰富多样的 LLM 对话引擎、文本转语音模型和语音识别方案。如果你想让 AI 伴侣更有个性，还可以参考 [角色定制指南](https://RemAI.github.io/docs/user-guide/live2d) 来自定义专属的 AI 伴侣形象和人设。
 
-关于为什么叫 `Open-LLM-Vtuber` 而不是 `Open-LLM-Companion` 或者 `Open-LLM-Waifu`，是因为项目的开发初衷是采用可在 Windows 以外平台离线运行的开源方案，复现闭源的 AI Vtuber `neuro-sama`。
+关于为什么叫 `RemAI` 而不是 `Open-LLM-Companion` 或者 `Open-LLM-Waifu`，是因为项目的开发初衷是采用可在 Windows 以外平台离线运行的开源方案，复现闭源的 AI Vtuber `neuro-sama`。
 
 本项目在 `v1.0.0` 版本后进行了代码重构，目前正处于积极开发阶段，未来还有许多令人兴奋的功能即将推出！🚀 查看我们的 [Roadmap](https://github.com/users/t41372/projects/1/views/5)，了解更新计划。
 
@@ -98,12 +98,12 @@
 
 ## 🚀 快速上手
 
-请阅读 [快速上手](https://open-llm-vtuber.github.io/docs/quick-start) 文档以安装项目。
+请阅读 [快速上手](https://RemAI.github.io/docs/quick-start) 文档以安装项目。
 
 
 
 ## ☝ 更新
-> :warning: `v1.0.0` 版本有重大变更，需要重新部署。你*仍然可以*通过以下方法更新，但 `conf.yaml` 文件不兼容，并且大多数依赖项需要使用 `uv` 重新安装。如果你是准备从`v1.0.0`之前的版本升级到 `v1.0.0` 或之后的版本，建议按照[最新的部署指南](https://open-llm-vtuber.github.io/docs/quick-start)重新部署本项目。
+> :warning: `v1.0.0` 版本有重大变更，需要重新部署。你*仍然可以*通过以下方法更新，但 `conf.yaml` 文件不兼容，并且大多数依赖项需要使用 `uv` 重新安装。如果你是准备从`v1.0.0`之前的版本升级到 `v1.0.0` 或之后的版本，建议按照[最新的部署指南](https://RemAI.github.io/docs/quick-start)重新部署本项目。
 
 如果你使用的是 `v1.0.0` 之后的版本，请运行更新脚本 `uv run upgrade.py` 进行更新。
 
@@ -136,5 +136,5 @@
 
 ## Star 历史
 
-[![Star History Chart](https://api.star-history.com/svg?repos=t41372/open-llm-vtuber&type=Date)](https://star-history.com/#t41372/open-llm-vtuber&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=t41372/RemAI&type=Date)](https://star-history.com/#t41372/RemAI&Date)
 ---

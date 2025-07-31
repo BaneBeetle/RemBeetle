@@ -1,4 +1,4 @@
-"""MCP Client for Open-LLM-Vtuber."""
+"""MCP Client for RemAI."""
 import json
 from contextlib import AsyncExitStack
 from typing import Dict, Any, List, Callable
@@ -16,7 +16,7 @@ DEFAULT_TIMEOUT = timedelta(seconds=30)
 
 
 class MCPClient:
-    """MCP Client for Open-LLM-Vtuber.
+    """MCP Client for RemAI.
     Manages persistent connections to multiple MCP servers.
     """
 

@@ -118,7 +118,7 @@ class InstallationManager:
             subprocess.run(["bash", "-c", pip_install_cmd], check=True)
 
     def check_environment(self):
-        """Check if 'open-llm-vtuber' environment exists and install if not"""
+        """Check if 'RemAI' environment exists and install if not"""
         result = subprocess.run(
             [str(self.conda_executable), "env", "list"],
             capture_output=True,

@@ -1017,7 +1017,7 @@ packages:
   - protobuf
   - sympy
 - pypi: .
-  name: open-llm-vtuber
+  name: RemAI
   version: 1.0.3
   sha256: 006c9a1b22f28c2ed3da9a98b45007a1b13afdb34bc66a2a780355a2a6ae55d3
   requires_dist:

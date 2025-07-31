@@ -1,4 +1,4 @@
-"""MCP Server Manager for Open-LLM-Vtuber."""
+"""MCP Server Manager for RemAI."""
 
 import shutil
 import json

@@ -1159,7 +1159,7 @@ wheels = [
 ]
 
 [[package]]
-name = "open-llm-vtuber"
+name = "RemAI"
 version = "1.2.0"
 source = { virtual = "." }
 dependencies = [

@@ -64239,7 +64239,7 @@ function VADProvider({ children: _e }) {
         (Ot.current = !1),
         (Et.current === "interrupted" || Et.current === "listening") &&
           Tt.current("idle"),
-        wt.current("The LLM can't hear you."));
+        wt.current("Rem can't hear you!"));
     }, []),
     Lt = reactExports.useCallback((er) => {
       (ut(er),
@@ -100530,14 +100530,14 @@ function SettingUI({ open: _e, onClose: _ }) {
               }),
             }),
 
-            jsxRuntimeExports.jsx(TabsContent, {
-              value: "characters",
-              ...settingStyles.settingUI.tabs.content,
-              children: jsxRuntimeExports.jsx(Characters, {
-                onSave: lt,
-                onCancel: ut,
-              }),
-            }),
+            // jsxRuntimeExports.jsx(TabsContent, {
+            //   value: "characters",
+            //   ...settingStyles.settingUI.tabs.content,
+            //   children: jsxRuntimeExports.jsx(Characters, {
+            //     onSave: lt,
+            //     onCancel: ut,
+            //   }),
+            // }),
 
             jsxRuntimeExports.jsx(TabsContent, {
               value: "live2d",
@@ -100555,11 +100555,11 @@ function SettingUI({ open: _e, onClose: _ }) {
                 onCancel: ut,
               }),
             }),
-            jsxRuntimeExports.jsx(TabsContent, {
-              value: "tts",
-              ...settingStyles.settingUI.tabs.content,
-              children: jsxRuntimeExports.jsx(TTS, {}),
-            }),
+            // jsxRuntimeExports.jsx(TabsContent, {
+            //   value: "tts",
+            //   ...settingStyles.settingUI.tabs.content,
+            //   children: jsxRuntimeExports.jsx(TTS, {}),
+            // }),
             jsxRuntimeExports.jsx(TabsContent, {
               value: "agent",
               ...settingStyles.settingUI.tabs.content,
@@ -100617,11 +100617,11 @@ function SettingUI({ open: _e, onClose: _ }) {
                       ...settingStyles.settingUI.tabs.trigger,
                       children: "General",
                     }),
-                    jsxRuntimeExports.jsx(TabsTrigger, {
-                      value: "characters",
-                      ...settingStyles.settingUI.tabs.trigger,
-                      children: "Characters",
-                    }),
+                    // jsxRuntimeExports.jsx(TabsTrigger, {
+                    //   value: "characters",
+                    //   ...settingStyles.settingUI.tabs.trigger,
+                    //   children: "Characters",
+                    // }),
                     jsxRuntimeExports.jsx(TabsTrigger, {
                       value: "live2d",
                       ...settingStyles.settingUI.tabs.trigger,
@@ -100632,11 +100632,11 @@ function SettingUI({ open: _e, onClose: _ }) {
                       ...settingStyles.settingUI.tabs.trigger,
                       children: "ASR",
                     }),
-                    jsxRuntimeExports.jsx(TabsTrigger, {
-                      value: "tts",
-                      ...settingStyles.settingUI.tabs.trigger,
-                      children: "TTS",
-                    }),
+                    // jsxRuntimeExports.jsx(TabsTrigger, {
+                    //   value: "tts",
+                    //   ...settingStyles.settingUI.tabs.trigger,
+                    //   children: "TTS",
+                    // }),
                     jsxRuntimeExports.jsx(TabsTrigger, {
                       value: "agent",
                       ...settingStyles.settingUI.tabs.trigger,
@@ -111320,7 +111320,7 @@ function TitleBar() {
         ...layoutStyles.macTitleBar,
         children: jsxRuntimeExports.jsx(Box, {
           ...layoutStyles.titleBarTitle,
-          children: "Open LLM VTuber",
+          children: "RemAI",
         }),
       })
     : jsxRuntimeExports.jsxs(Box, {
@@ -111328,7 +111328,7 @@ function TitleBar() {
         children: [
           jsxRuntimeExports.jsx(Box, {
             ...layoutStyles.titleBarTitle,
-            children: "Open LLM VTuber",
+            children: "RemAI",
           }),
           jsxRuntimeExports.jsxs(Box, {
             ...layoutStyles.titleBarButtons,

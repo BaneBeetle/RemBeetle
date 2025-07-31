@@ -81,7 +81,7 @@ def check_frontend_submodule(lang=None):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Open-LLM-VTuber Server")
+    parser = argparse.ArgumentParser(description="RemAI Server")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
     parser.add_argument(
         "--hf_mirror", action="store_true", help="Use Hugging Face mirror"
@@ -92,7 +92,7 @@ def parse_args():
 @logger.catch
 def run(console_log_level: str):
     init_logger(console_log_level)
-    logger.info(f"Open-LLM-VTuber, version v{get_version()}")
+    logger.info(f"RemAI, version v{get_version()}")
 
     # Get selected language
     lang = upgrade_manager.lang
