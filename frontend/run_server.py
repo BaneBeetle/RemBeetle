@@ -9,6 +9,7 @@ import tomli
 import uvicorn
 from loguru import logger
 from upgrade_codes.upgrade_manager import UpgradeManager
+import traceback
 
 from server.server import WebSocketServer
 from server.config_manager import Config, read_yaml, validate_config
@@ -124,8 +125,10 @@ def run(console_log_level: str):
         asyncio.run(server.initialize())
         logger.info("Server context initialized successfully.")
     except Exception as e:
+        
+        traceback.print_exc()
         logger.error(f"Failed to initialize server context: {e}")
-        sys.exit(1)  # Exit if initialization fails
+        sys.exit(1)
 
     # Run the Uvicorn server
     logger.info(f"Starting server on {server_config.host}:{server_config.port}")
