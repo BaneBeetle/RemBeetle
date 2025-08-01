@@ -127,7 +127,7 @@ class LmStudioConfig(OpenAICompatibleConfig):
     """Configuration for LM Studio."""
 
     llm_api_key: str = Field("default_api_key", alias="llm_api_key")
-    base_url: str = Field("http://localhost:1234/v1", alias="base_url")
+    base_url: str = Field("http://0.0.0.0:1234/v1", alias="base_url")
     interrupt_method: Literal["system", "user"] = Field(
         "system", alias="interrupt_method"
     )

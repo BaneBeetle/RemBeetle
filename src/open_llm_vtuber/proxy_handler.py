@@ -16,7 +16,7 @@ class ProxyHandler:
     This enables scenarios like having a web client and a live platform both connected to the same VTuber server.
     """
 
-    def __init__(self, server_url: str = "ws://localhost:12393/client-ws"):
+    def __init__(self, server_url: str = "ws://0.0.0.0:12393/client-ws"):
         """
         Initialize the proxy handler.
 

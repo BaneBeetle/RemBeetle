@@ -136,7 +136,7 @@ class TTSFactory:
                 ),  # Will use default "not-needed" if not in kwargs
                 base_url=kwargs.get(
                     "base_url"
-                ),  # Will use default "http://localhost:8880/v1" if not in kwargs
+                ),  # Will use default "http://0.0.0.0:8880/v1" if not in kwargs
                 file_extension=kwargs.get(
                     "file_extension"
                 ),  # Will use default "mp3" if not in kwargs

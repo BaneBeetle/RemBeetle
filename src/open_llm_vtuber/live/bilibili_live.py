@@ -300,7 +300,7 @@ class BiliBiliLivePlatform(LivePlatformInterface):
         Main entry point for running the BiliBili Live platform client.
         Connects to BiliBili Live rooms and the proxy, and starts monitoring danmaku.
         """
-        proxy_url = "ws://localhost:12393/proxy-ws"
+        proxy_url = "ws://0.0.0.0:12393/proxy-ws"
 
         try:
             self._running = True

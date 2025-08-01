@@ -24,7 +24,7 @@ class LettaAgent(AgentInterface):
         tts_preprocessor_config: TTSPreprocessorConfig = None,
         faster_first_response: bool = True,
         segment_method: str = "pysbd",
-        host: str = "localhost",
+        host: str = "0.0.0.0",
         port: int = 8283,
     ):
         super().__init__()

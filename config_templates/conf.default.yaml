@@ -1,7 +1,7 @@
 # System Settings: Setting related to the initialization of the server
 system_config:
   conf_version: 'v1.2.0'
-  host: 'localhost' # use 0.0.0.0 if you want other devices to access this page
+  host: '0.0.0.0' # use 0.0.0.0 if you want other devices to access this page
   port: 12393
   # New setting for alternative configurations
   config_alts_dir: 'characters'
@@ -70,7 +70,7 @@ character_config:
         mcp_enabled_servers: ["time", "ddg-search"] # Enabled MCP servers
 
       letta_agent:
-        host: 'localhost' # Host address
+        host: '0.0.0.0' # Host address
         port: 8283 # Port number
         id: xxx # ID number of the Agent running on the Letta server
         faster_first_response: True
@@ -94,7 +94,7 @@ character_config:
 
       # Stateless LLM with Template (For Non-ChatML LLMs, usually not needed)
       stateless_llm_with_template:
-        base_url: 'http://localhost:8080/v1'
+        base_url: 'http://0.0.0.0:8080/v1'
         llm_api_key: 'somethingelse'
         organization_id: null
         project_id: null
@@ -105,7 +105,7 @@ character_config:
 
       # OpenAI Compatible inference backend
       openai_compatible_llm:
-        base_url: 'http://localhost:11434/v1'
+        base_url: 'http://0.0.0.0:11434/v1'
         llm_api_key: 'somethingelse'
         organization_id: null
         project_id: null
@@ -127,7 +127,7 @@ character_config:
         verbose: False
 
       ollama_llm:
-        base_url: 'http://localhost:11434/v1'
+        base_url: 'http://0.0.0.0:11434/v1'
         model: 'qwen2.5:latest'
         temperature: 1.0 # value between 0 to 2
         # seconds to keep the model in memory after inactivity. 
@@ -136,7 +136,7 @@ character_config:
         unload_at_exit: True # unload the model from memory at exit
 
       lmstudio_llm:
-        base_url: 'http://localhost:1234/v1'
+        base_url: 'http://0.0.0.0:1234/v1'
         model: 'qwen2.5:latest'
         temperature: 1.0 # value between 0 to 2
 
@@ -395,7 +395,7 @@ character_config:
       model: 'kokoro' # Model name expected by the server (e.g., 'tts-1', 'kokoro')
       voice: 'af_sky+af_bella' # Voice name(s) expected by the server (e.g., 'alloy', 'af_sky+af_bella')
       api_key: 'not-needed' # API key if required by the server
-      base_url: 'http://localhost:8880/v1' # Base URL of the TTS server
+      base_url: 'http://0.0.0.0:8880/v1' # Base URL of the TTS server
       file_extension: 'mp3' # Audio file format ('mp3' or 'wav')
 
     # For more details, see: https://platform.minimaxi.com/document/Announcement
@@ -438,7 +438,7 @@ character_config:
 
       deeplx:
         deeplx_target_lang: 'JA'
-        deeplx_api_endpoint: 'http://localhost:1188/v2/translate'
+        deeplx_api_endpoint: 'http://0.0.0.0:1188/v2/translate'
       
       #  Tencent Text Translation  5 million characters per month  Remember to turn off post-payment, need to manually go to Machine Translation Console > System Settings to disable
       #   https://cloud.tencent.com/document/product/551/35017

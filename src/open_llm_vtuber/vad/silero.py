@@ -213,7 +213,7 @@ async def vad_main():
     async def start_websocket_server():
         import websockets
 
-        host = "localhost"
+        host = "0.0.0.0"
         port = 8765
         start_server = websockets.serve(audio_handler, host, port)
         logger.info(f"WebSocket server started at ws://{host}:{port}")

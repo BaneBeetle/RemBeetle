@@ -25,7 +25,7 @@ class TTSEngine(TTSInterface):
         model="kokoro",  # Default model based on user example
         voice="af_sky+af_bella",  # Default voice based on user example
         api_key="not-needed",  # Default for local/compatible servers that don't require auth
-        base_url="http://localhost:8880/v1",  # Default to the specified endpoint
+        base_url="http://0.0.0.0:8880/v1",  # Default to the specified endpoint
         file_extension: str = "mp3",  # Configurable file extension
         **kwargs,  # Allow passing additional args to OpenAI client
     ):
@@ -36,7 +36,7 @@ class TTSEngine(TTSInterface):
             model (str): The TTS model to use (e.g., 'tts-1', 'tts-1-hd').
             voice (str): The voice to use (e.g., 'alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer').
             api_key (str, optional): API key for the TTS service. Defaults to "not-needed".
-            base_url (str, optional): Base URL of the OpenAI-compatible TTS endpoint. Defaults to "http://localhost:8880/v1".
+            base_url (str, optional): Base URL of the OpenAI-compatible TTS endpoint. Defaults to "http://0.0.0.0:8880/v1".
         """
         self.model = model
         self.voice = voice

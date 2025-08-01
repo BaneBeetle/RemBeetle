@@ -10,4 +10,4 @@ While ASR and TTS technologies are powerful on their own, setting them up can be
 
 This is a dedicated web page within the RemAI backend that provides direct access to the ASR and TTS models initialized by the RemAI server.
 
-Access the web page at: http://localhost:12393/web-tool. Note that the ASR and TTS models are the same ones you've set in the `conf.yaml` file, and switching models at runtime is not possible at this point.
+Access the web page at: http://0.0.0.0:12393/web-tool. Note that the ASR and TTS models are the same ones you've set in the `conf.yaml` file, and switching models at runtime is not possible at this point.

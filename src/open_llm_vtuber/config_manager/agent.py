@@ -151,7 +151,7 @@ class HumeAIConfig(I18nMixin, BaseModel):
 class LettaConfig(I18nMixin, BaseModel):
     """Configuration for the Letta agent."""
 
-    host: str = Field("localhost", alias="host")
+    host: str = Field("0.0.0.0", alias="host")
     port: int = Field(8283, alias="port")
     id: str = Field(..., alias="id")
     faster_first_response: Optional[bool] = Field(True, alias="faster_first_response")
