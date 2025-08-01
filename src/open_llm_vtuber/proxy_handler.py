@@ -16,14 +16,18 @@ class ProxyHandler:
     This enables scenarios like having a web client and a live platform both connected to the same VTuber server.
     """
 
-    def __init__(self, server_url: str = "ws://0.0.0.0:12393/client-ws"):
+    def __init__(self, server_url: str | None = None):
         """
         Initialize the proxy handler.
 
         Args:
             server_url: The WebSocket URL of the actual server
         """
+
+        if not server_url:
+            server_url = "ws://127.0.0.1:12393/client-ws"
         self.server_url = server_url
+
         self.server_ws: Optional[aiohttp.ClientWebSocketResponse] = None
         self.clients: Dict[str, WebSocket] = {}
         self.connected = False
