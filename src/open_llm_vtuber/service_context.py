@@ -309,14 +309,20 @@ class ServiceContext:
     def init_asr(self, asr_config: ASRConfig) -> None:
         if not self.asr_engine or (self.character_config.asr_config != asr_config):
             logger.info(f"Initializing ASR: {asr_config.asr_model}")
-            self.asr_engine = ASRFactory.get_asr_system(
-                asr_config.asr_model,
-                **getattr(asr_config, asr_config.asr_model).model_dump(),
-            )
-            # saving config should be done after successful initialization
+            try:
+                self.asr_engine = ASRFactory.get_asr_system(
+                    asr_config.asr_model,
+                    **getattr(asr_config, asr_config.asr_model).model_dump(),
+                )
+            except Exception as e:
+                import traceback
+                logger.error(f"ASR initialization failed: {e}")
+                traceback.print_exc()
+                raise  # optionally crash here to see the cause
             self.character_config.asr_config = asr_config
         else:
             logger.info("ASR already initialized with the same config.")
+
 
     def init_tts(self, tts_config: TTSConfig) -> None:
         if not self.tts_engine or (self.character_config.tts_config != tts_config):
