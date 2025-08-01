@@ -121,14 +121,15 @@ def run(console_log_level: str):
 
     # Perform asynchronous initialization (loading context, etc.)
     logger.info("Initializing server context...")
+
     try:
         asyncio.run(server.initialize())
         logger.info("Server context initialized successfully.")
     except Exception as e:
-        
-        traceback.print_exc()
-        logger.error(f"Failed to initialize server context: {e}")
+        logger.exception("Failed to initialize server context with traceback:")
+        traceback.print_exc()  # optional, for direct print
         sys.exit(1)
+
 
     # Run the Uvicorn server
     logger.info(f"Starting server on {server_config.host}:{server_config.port}")
