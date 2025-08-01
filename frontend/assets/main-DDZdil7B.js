@@ -35429,8 +35429,11 @@ const mn = class mn {
 en(mn, "instance");
 let WebSocketService = mn;
 const wsService = WebSocketService.getInstance(),
-  DEFAULT_WS_URL = "ws://127.0.0.1:12393/client-ws",
-  DEFAULT_BASE_URL = "http://127.0.0.1:12393",
+  const DEFAULT_WS_URL =
+  (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/client-ws';
+  
+  const DEFAULT_BASE_URL =
+  location.protocol + '//' + location.host;
   WebSocketContext = React.createContext({
     sendMessage: wsService.sendMessage.bind(wsService),
     wsState: "CLOSED",
