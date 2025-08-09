@@ -9,7 +9,7 @@ class TTSEngine(TTSInterface):
         self,
         api_url: str = "http://127.0.0.1:9880/",
         text_lang: str = "en",
-        ref_audio_path: str = "C:\\Users\\lolly\\OneDrive\\Desktop\\Projects\\WaifuBeetle2\\character_files\\main_sample.wav",
+        ref_audio_path: str = "/home/ubuntu/RemBeetle/character_files/main_sample.wav",
         prompt_lang: str = "en",
         prompt_text: str = "This is a sample voice for you to just get started with because it sounds kind of cute but just make sure this doesn't have long silences.",
         text_split_method: str = "cut5",

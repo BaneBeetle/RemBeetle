@@ -27,8 +27,8 @@ system_config:
 
 # configuration for the default character
 character_config:
-  conf_name: 'Rem' # The name of character configuration file.
-  conf_uid: 'Rem' # The unique identifier of character configuration.
+  conf_name: 'REM' # The name of character configuration file.
+  conf_uid: 'REM' # The unique identifier of character configuration.
   live2d_model_name: 'REM' # The name of Live2D model. Must be the same as the corresponding name in model_dict.json
   character_name: 'Rem' # Will be used in the group conversation and the display name of the AI.
   avatar: 'rem.jpg' # Suggest using a square image for the avatar. Save it in the avatars folder. Leave blank to use the first letter of the character name as the avatar.
