@@ -3,9 +3,9 @@
         "name": "REM",
         "description": "",
         "url": "/live2d-models/REM/REM.model3.json",
-        "kScale": 0.5,
+        "kScale": 0.3,
         "initialXshift": 0,
-        "initialYshift": 0,
+        "initialYshift": 700,
         "kXOffset": 1150,
         "idleMotionGroupName": "Idle",
         "emotionMap": {
