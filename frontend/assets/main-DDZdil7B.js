@@ -35536,7 +35536,7 @@ const Background = reactExports.memo(({ children: _e }) => {
 });
 Background.displayName = "Background";
 const DEFAULT_SUBTITLE = {
-    text: "Hi, I'm some random AI VTuber. Who the hell are ya? Ahh, you must be amazed by my awesomeness, right? right?",
+    text: "Hi, I am Rem! HARHARHAR!! If you are seeing this message... the server is still booting up erm... idk what to do :O",
   },
   SubtitleContext = reactExports.createContext(null),
   SubtitleProvider = reactExports.memo(({ children: _e }) => {
