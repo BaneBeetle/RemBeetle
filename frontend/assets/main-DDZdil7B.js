@@ -64146,7 +64146,7 @@ const DEFAULT_VAD_SETTINGS = {
     redemptionFrames: 35,
   },
   DEFAULT_VAD_STATE = {
-    micOn: !1,
+    micOn: !0,
     autoStopMic: !1,
     autoStartMicOn: !1,
     autoStartMicOnConvEnd: !1,
@@ -110795,14 +110795,14 @@ const ActionButtons = reactExports.memo(
     jsxRuntimeExports.jsxs(HStack, {
       gap: 2,
       children: [
-        jsxRuntimeExports.jsx(IconButton, {
+        /*jsxRuntimeExports.jsx(IconButton, {
           bg: _e ? "green.500" : "red.500",
           ...footerStyles.footer.actionButton,
           onClick: _,
           children: _e
             ? jsxRuntimeExports.jsx(BsMicFill, {})
             : jsxRuntimeExports.jsx(BsMicMuteFill, {}),
-        }),
+        }),*/
         jsxRuntimeExports.jsx(IconButton, {
           "aria-label": "Raise hand",
           bg: "yellow.500",
