@@ -64146,7 +64146,7 @@ const DEFAULT_VAD_SETTINGS = {
     redemptionFrames: 35,
   },
   DEFAULT_VAD_STATE = {
-    micOn: !0,
+    micOn: !1,
     autoStopMic: !1,
     autoStartMicOn: !1,
     autoStartMicOnConvEnd: !1,
