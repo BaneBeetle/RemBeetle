@@ -110799,7 +110799,6 @@ const ActionButtons = reactExports.memo(
           bg: _e ? "green.500" : "red.500",
           ...footerStyles.footer.actionButton,
           onClick: _,
-          isDisabled: !0,
           children: _e
             ? jsxRuntimeExports.jsx(BsMicFill, {})
             : jsxRuntimeExports.jsx(BsMicMuteFill, {}),
