@@ -52,8 +52,13 @@ class CORSStaticFiles(StarletteStaticFiles):
         response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
         response.headers["Access-Control-Allow-Headers"] = "*"
 
+        # Set proper Content-Type headers
         if path.endswith(".js"):
-            response.headers["Content-Type"] = "application/javascript"
+            response.headers["Content-Type"] = "application/javascript; charset=utf-8"
+        elif path.endswith(".css"):
+            response.headers["Content-Type"] = "text/css; charset=utf-8"
+        elif path.endswith(".html"):
+            response.headers["Content-Type"] = "text/html; charset=utf-8"
 
         return response
 
