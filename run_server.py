@@ -55,6 +55,7 @@ def check_frontend_submodule(lang=None):
         lang = upgrade_manager.lang
 
     frontend_path = Path(__file__).parent / "frontend" / "index.html"
+    
     if not frontend_path.exists():
         logger.warning("Frontend submodule not found, attempting to initialize submodules...")
 
