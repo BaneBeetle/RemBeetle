@@ -27,7 +27,25 @@ class CORSStaticFiles(StarletteStaticFiles):
     """
 
     async def get_response(self, path: str, scope):
+        # #region agent log
+        import json
+        import time
+        log_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".cursor", "debug.log")
+        try:
+            with open(log_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps({"id": "log_static_file_request", "timestamp": int(time.time() * 1000), "location": "server.py:29", "message": "Static file request", "data": {"path": path, "method": scope.get("method", "UNKNOWN")}, "sessionId": "debug-session", "runId": "run1", "hypothesisId": "A"}) + "\n")
+        except: pass
+        # #endregion
+        
         response = await super().get_response(path, scope)
+        
+        # #region agent log
+        try:
+            status_code = response.status_code if hasattr(response, 'status_code') else getattr(response, 'status', 'UNKNOWN')
+            with open(log_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps({"id": "log_static_file_response", "timestamp": int(time.time() * 1000), "location": "server.py:36", "message": "Static file response", "data": {"path": path, "status_code": status_code}, "sessionId": "debug-session", "runId": "run1", "hypothesisId": "A"}) + "\n")
+        except: pass
+        # #endregion
 
         # Add CORS headers to all responses
         response.headers["Access-Control-Allow-Origin"] = "*"
