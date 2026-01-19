@@ -159,6 +159,18 @@ class WebSocketServer:
             name="web_tool",
         )
 
+        # Mount frontend libs and assets explicitly before catch-all
+        self.app.mount(
+            "/libs",
+            CORSStaticFiles(directory="frontend/libs"),
+            name="frontend-libs",
+        )
+        self.app.mount(
+            "/assets",
+            CORSStaticFiles(directory="frontend/assets"),
+            name="frontend-assets",
+        )
+
         # Mount main frontend last (as catch-all)
         self.app.mount(
             "/",
