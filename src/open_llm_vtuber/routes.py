@@ -1,5 +1,6 @@
 import os
 import json
+import time
 from uuid import uuid4
 import numpy as np
 from datetime import datetime
@@ -10,6 +11,8 @@ from loguru import logger
 from .service_context import ServiceContext
 from .websocket_handler import WebSocketHandler
 from .proxy_handler import ProxyHandler
+from .security.input_validation import validate_file_upload
+from .security.rate_limiter import check_websocket_rate_limit
 
 
 def init_client_ws_route(default_context_cache: ServiceContext) -> APIRouter:
@@ -29,16 +32,86 @@ def init_client_ws_route(default_context_cache: ServiceContext) -> APIRouter:
     @router.websocket("/client-ws")
     async def websocket_endpoint(websocket: WebSocket):
         """WebSocket endpoint for client connections"""
-        await websocket.accept()
+        connection_start_time = time.time()
+        # #region agent log
+        with open("debug.log", "a") as logf:
+            logf.write(json.dumps({"id": f"log_{int(time.time() * 1000)}", "timestamp": int(time.time() * 1000), "location": "routes.py:32", "message": "WebSocket endpoint called", "data": {"client_ip": websocket.client.host if websocket.client else "unknown", "connection_start": connection_start_time}, "sessionId": "debug-session", "runId": "run1", "hypothesisId": "H4"}) + "\n")
+        # #endregion
+        client_ip = websocket.client.host if websocket.client else "unknown"
+        logger.info(f"[WS DEBUG] WebSocket connection attempt from {client_ip} (client: {websocket.client})")
+        logger.info(f"[WS DEBUG] Connection state before accept: {websocket.client_state.name}")
+        
+        try:
+            accept_start = time.time()
+            # #region agent log
+            with open("debug.log", "a") as logf:
+                logf.write(json.dumps({"id": f"log_{int(time.time() * 1000)}", "timestamp": int(time.time() * 1000), "location": "routes.py:39", "message": "Before websocket.accept()", "data": {"time_since_start": accept_start - connection_start_time}, "sessionId": "debug-session", "runId": "run1", "hypothesisId": "H4"}) + "\n")
+            # #endregion
+            await websocket.accept()
+            accept_duration = time.time() - accept_start
+            # #region agent log
+            with open("debug.log", "a") as logf:
+                logf.write(json.dumps({"id": f"log_{int(time.time() * 1000)}", "timestamp": int(time.time() * 1000), "location": "routes.py:40", "message": "After websocket.accept()", "data": {"accept_duration": accept_duration, "connection_state": websocket.client_state.name}, "sessionId": "debug-session", "runId": "run1", "hypothesisId": "H4"}) + "\n")
+            # #endregion
+            logger.info(f"[WS DEBUG] WebSocket connection accepted successfully")
+            logger.info(f"[WS DEBUG] Connection state after accept: {websocket.client_state.name}")
+            # #region agent log
+            with open("debug.log", "a") as logf:
+                log_entry = {
+                    "id": f"log_{int(time.time() * 1000)}",
+                    "timestamp": int(time.time() * 1000),
+                    "location": "routes.py:42",
+                    "message": "WebSocket accepted",
+                    "data": {
+                        "client_ip": client_ip,
+                        "client_host": websocket.client.host if websocket.client else None,
+                        "client_port": websocket.client.port if websocket.client else None,
+                        "connection_state": websocket.client_state.name,
+                        "url": str(websocket.url) if hasattr(websocket, 'url') else None,
+                        "headers": dict(websocket.headers) if hasattr(websocket, 'headers') else None
+                    },
+                    "sessionId": "debug-session",
+                    "runId": "run1",
+                    "hypothesisId": "H2"
+                }
+                logf.write(json.dumps(log_entry) + "\n")
+            # #endregion
+        except Exception as accept_err:
+            logger.error(f"[WS DEBUG] Failed to accept WebSocket connection: {accept_err}", exc_info=True)
+            return
+        
+        # Apply rate limiting after accepting connection (so we can properly close it)
+        # Only rate limit if we've exceeded connection limits (not message limits)
+        try:
+            await check_websocket_rate_limit(websocket)
+            logger.info(f"[WS DEBUG] Rate limit check passed")
+        except WebSocketDisconnect:
+            logger.warning("[WS DEBUG] WebSocket connection closed due to rate limit")
+            return  # Connection closed due to rate limit
+        except Exception as rate_limit_err:
+            logger.error(f"[WS DEBUG] Error during rate limit check: {rate_limit_err}", exc_info=True)
+            return
+        
         client_uid = str(uuid4())
+        logger.info(f"[WS DEBUG] WebSocket client {client_uid} assigned, connection state: {websocket.client_state.name}")
 
         try:
+            logger.info(f"[WS DEBUG] Initializing new connection for client {client_uid}")
             await ws_handler.handle_new_connection(websocket, client_uid)
+            logger.info(f"[WS DEBUG] Connection initialized, starting communication loop for client {client_uid}")
             await ws_handler.handle_websocket_communication(websocket, client_uid)
-        except WebSocketDisconnect:
+        except WebSocketDisconnect as ws_disconnect:
+            disconnect_time = time.time()
+            total_time = disconnect_time - connection_start_time
+            # #region agent log
+            with open("debug.log", "a") as logf:
+                logf.write(json.dumps({"id": f"log_{int(time.time() * 1000)}", "timestamp": int(time.time() * 1000), "location": "routes.py:66", "message": "WebSocketDisconnect in routes", "data": {"client_uid": client_uid, "total_connection_time": total_time, "error": str(ws_disconnect), "code": ws_disconnect.code if hasattr(ws_disconnect, "code") else None}, "sessionId": "debug-session", "runId": "run1", "hypothesisId": "H1"}) + "\n")
+            # #endregion
+            logger.info(f"[WS DEBUG] WebSocket disconnect for client {client_uid}: {ws_disconnect}")
             await ws_handler.handle_disconnect(client_uid)
         except Exception as e:
-            logger.error(f"Error in WebSocket connection: {e}")
+            logger.error(f"[WS DEBUG] Error in WebSocket connection for client {client_uid}: {e}", exc_info=True)
+            logger.error(f"[WS DEBUG] Connection state at error: {websocket.client_state.name}")
             await ws_handler.handle_disconnect(client_uid)
             raise
 
@@ -61,6 +134,14 @@ def init_proxy_route(server_url: str) -> APIRouter:
     @router.websocket("/proxy-ws")
     async def proxy_endpoint(websocket: WebSocket):
         """WebSocket endpoint for proxy connections"""
+        await websocket.accept()
+        
+        # Apply rate limiting after accepting connection
+        try:
+            await check_websocket_rate_limit(websocket)
+        except WebSocketDisconnect:
+            return  # Connection closed due to rate limit
+        
         try:
             await proxy_handler.handle_client_connection(websocket)
         except Exception as e:
@@ -146,7 +227,22 @@ def init_webtool_routes(default_context_cache: ServiceContext) -> APIRouter:
         logger.info(f"Received audio file for transcription: {file.filename}")
 
         try:
-            contents = await file.read()
+            # Validate file upload (filename, content type, size)
+            file_size = 0
+            contents = b""
+            async for chunk in file.stream():
+                file_size += len(chunk)
+                contents += chunk
+                # Check size during streaming to prevent memory exhaustion
+                if file_size > 10 * 1024 * 1024:  # 10MB limit
+                    raise ValueError("File too large. Maximum size: 10MB")
+            
+            # Validate upload using schema
+            validate_file_upload(
+                filename=file.filename or "unknown",
+                content_type=file.content_type,
+                file_size=file_size,
+            )
 
             # Validate minimum file size
             if len(contents) < 44:  # Minimum WAV header size
@@ -202,19 +298,34 @@ def init_webtool_routes(default_context_cache: ServiceContext) -> APIRouter:
     async def tts_endpoint(websocket: WebSocket):
         """WebSocket endpoint for TTS generation"""
         await websocket.accept()
+        
+        # Apply rate limiting after accepting connection
+        try:
+            await check_websocket_rate_limit(websocket)
+        except WebSocketDisconnect:
+            return  # Connection closed due to rate limit
         logger.info("TTS WebSocket connection established")
 
         try:
             while True:
                 data = await websocket.receive_json()
-                text = data.get("text")
+                
+                # Validate input
+                from .security.input_validation import validate_websocket_message
+                validated_data = validate_websocket_message(data)
+                
+                text = validated_data.get("text")
                 if not text:
                     continue
 
                 logger.info(f"Received text for TTS: {text}")
 
-                # Split text into sentences
+                # Split text into sentences (with validation)
                 sentences = [s.strip() for s in text.split(".") if s.strip()]
+                # Limit number of sentences to prevent abuse
+                if len(sentences) > 100:
+                    sentences = sentences[:100]
+                    logger.warning("Sentence count limited to 100")
 
                 try:
                     # Generate and send audio for each sentence

@@ -61,3 +61,8 @@ private/
 frontend/models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/
 
 rembeetle-key.pem
+
+# Sensitive configuration (use conf.yaml.example as template)
+conf.yaml
+debug.log
+*.pem

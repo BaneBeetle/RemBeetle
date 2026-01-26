@@ -3,13 +3,214 @@
   <head>
     <meta charset="UTF-8" />
     <title>RemAI</title>
-    <link rel="icon" href="rem.ico" />
-    <!-- Load Live2D libraries from static 'libs' route -->
-    <script src="/libs/live2dcubismcore.min.js"></script>
-    <script src="/libs/live2d.min.js"></script>
-    <!-- Load compiled frontend assets from '/assets' -->
-    <script type="module" crossorigin src="/assets/main-DDZdil7B.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/main-6gNOTEMZ.css" />
+    <link rel="icon" type="image/jpeg" href="./rem.jpg">
+    <script>
+      // Override WebSocket and HTTP requests to use current host instead of hardcoded 127.0.0.1
+      // This fixes the issue where frontend tries to connect to localhost when accessed remotely
+      (function() {
+        const isSecure = window.location.protocol === 'https:';
+        const currentProtocol = window.location.protocol; // "https:" or "http:"
+        const currentHostname = window.location.hostname; // e.g., "www.rembeetle.com"
+        
+        // Helper function to replace localhost URLs
+        const replaceLocalhost = function(url) {
+          if (typeof url !== 'string') return url;
+          url = url.replace(/http:\/\/127\.0\.0\.1:12393/g, currentProtocol + '//' + currentHostname);
+          url = url.replace(/http:\/\/localhost:12393/g, currentProtocol + '//' + currentHostname);
+          if (isSecure) {
+            url = url.replace(/:12393\//g, '/');
+          }
+          return url;
+        };
+        
+        // Override WebSocket constructor with message queuing
+        const originalWebSocket = window.WebSocket;
+        window.WebSocket = function(url, protocols) {
+          if (url && typeof url === 'string') {
+            const wsProtocol = isSecure ? 'wss://' : 'ws://';
+            
+            if (isSecure) {
+              url = url.replace(/ws:\/\/127\.0\.0\.1:12393/, wsProtocol + currentHostname);
+              url = url.replace(/ws:\/\/localhost:12393/, wsProtocol + currentHostname);
+              url = url.replace(/:12393\//, '/');
+            } else {
+              url = url.replace('ws://127.0.0.1:12393', wsProtocol + currentHostname + ':12393');
+              url = url.replace('ws://localhost:12393', wsProtocol + currentHostname + ':12393');
+            }
+            url = url.replace(/:12393\s+\//, '/');
+            url = url.replace(/\s+\//, '/');
+          }
+          
+          const ws = new originalWebSocket(url, protocols);
+          
+          // Message queue for messages sent before connection is open
+          const messageQueue = [];
+          
+          // Store original send
+          const originalSend = ws.send.bind(ws);
+          
+          // Override send to queue messages if not open
+          ws.send = function(data) {
+            if (ws.readyState === WebSocket.OPEN) {
+              originalSend(data);
+            } else if (ws.readyState === WebSocket.CONNECTING) {
+              console.log('[WS Queue] Queuing message, connection not ready yet');
+              messageQueue.push(data);
+            } else {
+              console.warn('[WS Queue] Cannot send, WebSocket state:', ws.readyState);
+            }
+          };
+          
+          // When connection opens, send queued messages
+          ws.addEventListener('open', function() {
+            console.log('[WS Queue] Connection opened, sending', messageQueue.length, 'queued messages');
+            while (messageQueue.length > 0) {
+              const msg = messageQueue.shift();
+              originalSend(msg);
+            }
+          });
+          
+          return ws;
+        };
+        
+        // Copy static constants from original WebSocket
+        window.WebSocket.CONNECTING = originalWebSocket.CONNECTING;
+        window.WebSocket.OPEN = originalWebSocket.OPEN;
+        window.WebSocket.CLOSING = originalWebSocket.CLOSING;
+        window.WebSocket.CLOSED = originalWebSocket.CLOSED;
+        window.WebSocket.prototype = originalWebSocket.prototype;
+        
+        // Override fetch to replace localhost URLs
+        const originalFetch = window.fetch;
+        window.fetch = function(input, init) {
+          if (typeof input === 'string') {
+            input = replaceLocalhost(input);
+          } else if (input instanceof Request) {
+            // If input is a Request object, we need to create a new one with modified URL
+            const newUrl = replaceLocalhost(input.url);
+            if (newUrl !== input.url) {
+              input = new Request(newUrl, {
+                method: input.method,
+                headers: input.headers,
+                body: input.body,
+                mode: input.mode,
+                credentials: input.credentials,
+                cache: input.cache,
+                redirect: input.redirect,
+                referrer: input.referrer,
+                integrity: input.integrity
+              });
+            }
+          }
+          return originalFetch(input, init);
+        };
+        
+        // Override XMLHttpRequest to replace localhost URLs
+        const originalXHROpen = XMLHttpRequest.prototype.open;
+        XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+          url = replaceLocalhost(url);
+          return originalXHROpen.call(this, method, url, ...rest);
+        };
+        
+        // Override Image constructor to replace localhost URLs
+        const originalImage = window.Image;
+        window.Image = function(...args) {
+          const img = new originalImage(...args);
+          // Intercept src property assignment
+          const originalSrcDescriptor = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
+          let interceptedSrc = null;
+          
+          Object.defineProperty(img, 'src', {
+            get: function() {
+              return interceptedSrc || originalSrcDescriptor.get.call(this);
+            },
+            set: function(value) {
+              interceptedSrc = replaceLocalhost(value);
+              originalSrcDescriptor.set.call(this, interceptedSrc);
+            },
+            configurable: true,
+            enumerable: true
+          });
+          
+          if (args[0] && typeof args[0] === 'string') {
+            img.src = args[0]; // This will trigger our setter
+          }
+          return img;
+        };
+        
+        // Intercept image src attribute assignments
+        const originalSetAttribute = Element.prototype.setAttribute;
+        Element.prototype.setAttribute = function(name, value) {
+          if ((name === 'src' || name === 'data-src') && typeof value === 'string') {
+            value = replaceLocalhost(value);
+          }
+          return originalSetAttribute.call(this, name, value);
+        };
+        
+        // Intercept style.backgroundImage assignments
+        try {
+          const originalStyleSetter = Object.getOwnPropertyDescriptor(CSSStyleDeclaration.prototype, 'backgroundImage').set;
+          Object.defineProperty(CSSStyleDeclaration.prototype, 'backgroundImage', {
+            set: function(value) {
+              if (typeof value === 'string') {
+                value = replaceLocalhost(value);
+              }
+              return originalStyleSetter.call(this, value);
+            },
+            get: Object.getOwnPropertyDescriptor(CSSStyleDeclaration.prototype, 'backgroundImage').get,
+            configurable: true,
+            enumerable: true
+          });
+        } catch (e) {
+          // Ignore if we can't intercept this
+        }
+        
+        // Use MutationObserver to catch image src changes after DOM manipulation
+        const observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
+              const target = mutation.target;
+              if (target.tagName === 'IMG' && target.src) {
+                const newSrc = replaceLocalhost(target.src);
+                if (newSrc !== target.src) {
+                  target.src = newSrc;
+                }
+              }
+            }
+            // Also check for style changes that might contain background images
+            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+              const target = mutation.target;
+              const bgImage = target.style.backgroundImage;
+              if (bgImage && typeof bgImage === 'string') {
+                const newBg = replaceLocalhost(bgImage);
+                if (newBg !== bgImage) {
+                  target.style.backgroundImage = newBg;
+                }
+              }
+            }
+          });
+        });
+        
+        // Start observing when DOM is ready
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function() {
+            observer.observe(document.body, {
+              attributes: true,
+              attributeFilter: ['src', 'style'],
+              subtree: true
+            });
+          });
+        } else {
+          observer.observe(document.body, {
+            attributes: true,
+            attributeFilter: ['src', 'style'],
+            subtree: true
+          });
+        }
+      })();
+    </script>
+    <script type="module" crossorigin src="./assets/main-nu7uwxNJ.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/main-QEkl09-0.css">
   </head>
 
   <body>
