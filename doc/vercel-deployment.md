@@ -48,6 +48,16 @@ the variable is missing or if the host is not allowed by the Content-Security-Po
 - `frontend/assets/main-nu7uwxNJ.js`, `main-QEkl09-0.css`, `auth-shell.js`, `favicon.ico`, `libs/live2dcubismcore.min.js`, `libs/vad.worklet.bundle.min.js`: synced from the production server (the repo copy was stale; `index.html` referenced a bundle that was not in git).
 - `.gitignore`: ignores `frontend/dist/`.
 
+## Status (2026-09-08)
+
+Steps 1 and 2 are done. The backend answers at `https://api.rembeetle.com` (Caddy block added,
+Let's Encrypt certificate issued) and the frontend is live on Vercel, project `rem-beetle-ydhi`,
+production URL `https://rem-beetle-ydhi.vercel.app`, built from commit 22026be. Verified in a
+browser: WebSocket connected to the EC2 backend, Live2D model, backgrounds and `/api/config`
+loaded cross-origin with zero failed requests, CSP and cache headers applied. Steps 3 to 5
+(Supabase preview redirect, DNS TTL, domain cutover) are still to do. A duplicate Vercel project
+named `rem-beetle` from the first import attempt also exists and can be deleted.
+
 ## Runbook
 
 Do the steps in order. Nothing user-facing changes until step 5.
@@ -101,6 +111,19 @@ Keep the existing `rembeetle.com, www.rembeetle.com` block for now. It is the ro
    Browser console should show `[auth-shell]` lines and no CSP or CORS errors.
 
 Google sign-in on the preview URL only works after step 3; production sign-in needs no change.
+
+Gotchas seen during the first setup:
+
+- The Root Directory picker on the import screen did not persist. Set it afterwards under
+  Settings, Build and Deployment, Root Directory, and confirm it still reads `frontend` after a
+  page reload. With `./` Vercel either tries to build the Python backend (FastAPI preset) or
+  publishes the whole repository as static files.
+- Vercel's automatic Ignored Build Step skips a commit whose SHA was already deployed. Pushing
+  the same commit to `main` and to a feature branch makes the branch build first and the
+  production build get skipped. Push to `main` only, or use Promote to Production on the
+  finished preview deployment.
+- An environment variable value pasted with a leading space arrived as
+  `' https://api.rembeetle.com'`. The build script now trims it, but keep values clean.
 
 ### 3. Supabase redirect URLs (optional for previews)
 
