@@ -92,7 +92,8 @@ Keep the existing `rembeetle.com, www.rembeetle.com` block for now. It is the ro
 1. Vercel dashboard: Add New Project, import `BaneBeetle/RemBeetle` from GitHub (branch `vercel-frontend`, or `main` after merging).
 2. Framework Preset: Other. Root Directory: `frontend`. Leave Build Command / Output Directory
    as detected from `vercel.json`.
-3. Environment Variables: `REMAI_BACKEND_ORIGIN` = `https://api.rembeetle.com` for Production and Preview.
+3. Environment Variables: `REMAI_BACKEND_ORIGIN` = `https://api.rembeetle.com` for Production and Preview. The build
+   script trims stray whitespace and a trailing slash from the value.
 4. Deploy. The build log should end with `Built dist/ for backend origin https://api.rembeetle.com`.
 5. Open the preview URL (`https://<project>.vercel.app`). Expected: Rem's Live2D model loads,
    the background image loads, the connection indicator is green (WebSocket to

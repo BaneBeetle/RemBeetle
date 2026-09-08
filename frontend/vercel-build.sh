@@ -12,8 +12,15 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-: "${REMAI_BACKEND_ORIGIN:?Set REMAI_BACKEND_ORIGIN (e.g. https://api.rembeetle.com) as an Environment Variable of the Vercel project}"
-ORIGIN="${REMAI_BACKEND_ORIGIN%/}"
+# Values pasted into the Vercel dashboard often carry a stray space or trailing slash; tolerate both.
+ORIGIN="${REMAI_BACKEND_ORIGIN-}"
+ORIGIN="${ORIGIN#"${ORIGIN%%[![:space:]]*}"}"   # strip leading whitespace
+ORIGIN="${ORIGIN%"${ORIGIN##*[![:space:]]}"}"   # strip trailing whitespace
+ORIGIN="${ORIGIN%/}"
+if [ -z "$ORIGIN" ]; then
+  echo "ERROR: Set REMAI_BACKEND_ORIGIN (e.g. https://api.rembeetle.com) as an Environment Variable of the Vercel project"
+  exit 1
+fi
 
 case "$ORIGIN" in
   https://*) ;;
