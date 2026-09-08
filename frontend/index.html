@@ -4,43 +4,52 @@
     <meta charset="UTF-8" />
     <title>RemAI</title>
     <link rel="icon" type="image/jpeg" href="./rem.jpg">
+    <!--
+      Backend origin config. Sets window.REMAI_BACKEND_ORIGIN when this frontend is hosted
+      separately from the backend (Vercel). Leave it null when the backend serves this page.
+      On Vercel, vercel-build.sh generates dist/config.js from the REMAI_BACKEND_ORIGIN env var.
+    -->
+    <script src="./config.js"></script>
     <script>
-      // Override WebSocket and HTTP requests to use current host instead of hardcoded 127.0.0.1
+      // Rewrite WebSocket and HTTP requests from the hardcoded 127.0.0.1:12393 to the backend origin
       // This fixes the issue where frontend tries to connect to localhost when accessed remotely
       (function() {
-        const isSecure = window.location.protocol === 'https:';
-        const currentProtocol = window.location.protocol; // "https:" or "http:"
-        const currentHostname = window.location.hostname; // e.g., "www.rembeetle.com"
-        
-        // Helper function to replace localhost URLs
+        // ---- Backend origin resolution (RemBeetle) -------------------------------------
+        // The compiled React bundle hardcodes http://127.0.0.1:12393 and ws://127.0.0.1:12393.
+        // Every request is rewritten at runtime to the real backend origin:
+        //   * window.REMAI_BACKEND_ORIGIN (set in ./config.js) when the frontend is hosted
+        //     separately from the backend, e.g. Vercel -> https://api.rembeetle.com
+        //   * otherwise the page's own origin, i.e. the backend is serving this page itself
+        //     (EC2 behind Caddy, or http://localhost:12393 in development). This keeps the
+        //     historical same-origin behaviour exactly as it was.
+        const configuredBackend =
+          (typeof window.REMAI_BACKEND_ORIGIN === 'string' && window.REMAI_BACKEND_ORIGIN.trim())
+            ? window.REMAI_BACKEND_ORIGIN.trim().replace(/\/+$/, '')
+            : '';
+        const backendOrigin = configuredBackend || window.location.origin;   // e.g. "https://api.rembeetle.com"
+        const backendWsOrigin = backendOrigin.replace(/^http/, 'ws');         // "https://" -> "wss://", "http://" -> "ws://"
+        window.__REMAI_RESOLVED_BACKEND_ORIGIN = backendOrigin;               // read by auth-shell.js
+        if (window.location.protocol === 'https:' && backendOrigin.indexOf('http://') === 0) {
+          console.warn('[backend-origin] page is https but the backend origin is http; browsers block this as mixed content:', backendOrigin);
+        }
+
+        // Helper function to replace the bundle's hardcoded localhost URLs with the backend origin
         const replaceLocalhost = function(url) {
           if (typeof url !== 'string') return url;
-          url = url.replace(/http:\/\/127\.0\.0\.1:12393/g, currentProtocol + '//' + currentHostname);
-          url = url.replace(/http:\/\/localhost:12393/g, currentProtocol + '//' + currentHostname);
-          if (isSecure) {
-            url = url.replace(/:12393\//g, '/');
-          }
+          url = url.replace(/http:\/\/127\.0\.0\.1:12393/g, backendOrigin);
+          url = url.replace(/http:\/\/localhost:12393/g, backendOrigin);
           return url;
         };
-        
+
         // Override WebSocket constructor with message queuing
         const originalWebSocket = window.WebSocket;
         window.WebSocket = function(url, protocols) {
           if (url && typeof url === 'string') {
-            const wsProtocol = isSecure ? 'wss://' : 'ws://';
-            
-            if (isSecure) {
-              url = url.replace(/ws:\/\/127\.0\.0\.1:12393/, wsProtocol + currentHostname);
-              url = url.replace(/ws:\/\/localhost:12393/, wsProtocol + currentHostname);
-              url = url.replace(/:12393\//, '/');
-            } else {
-              url = url.replace('ws://127.0.0.1:12393', wsProtocol + currentHostname + ':12393');
-              url = url.replace('ws://localhost:12393', wsProtocol + currentHostname + ':12393');
-            }
-            url = url.replace(/:12393\s+\//, '/');
+            url = url.replace(/^ws:\/\/127\.0\.0\.1:12393/, backendWsOrigin);
+            url = url.replace(/^ws:\/\/localhost:12393/, backendWsOrigin);
             url = url.replace(/\s+\//, '/');
           }
-          
+
           const ws = new originalWebSocket(url, protocols);
           
           // Message queue for messages sent before connection is open
@@ -209,11 +218,72 @@
         }
       })();
     </script>
-    <script type="module" crossorigin src="./assets/main-nu7uwxNJ.js"></script>
+    <!--
+      Auth shell: fetches /api/config, lazy-loads Supabase SDK, wraps
+      window.WebSocket to inject ?token=<jwt> on /client-ws connections.
+      Loaded AFTER the URL rewriter so its wrapper sits on top of the
+      rewriter's wrapper — both transformations compose cleanly.
+      Total no-op when /api/config returns auth_enabled=false.
+    -->
+    <script src="./auth-shell.js"></script>
+    <!--
+      React bundle is loaded DYNAMICALLY by auth-shell.js after the
+      Supabase session is settled, so the WebSocket wrapper already has
+      the JWT when the React app calls new WebSocket(). If auth-shell.js
+      fails to load, the fallback below fires after 5s.
+    -->
+    <script>
+      window.__reactBundleLoaded = false;
+      window.__loadReactBundle = function() {
+        if (window.__reactBundleLoaded) return;
+        window.__reactBundleLoaded = true;
+        var s = document.createElement('script');
+        s.type = 'module';
+        s.crossOrigin = 'anonymous';
+        s.src = './assets/main-nu7uwxNJ.js?v=4';
+        document.head.appendChild(s);
+      };
+      // Fallback: if auth-shell.js fails or takes too long, load anyway after 5s
+      setTimeout(window.__loadReactBundle, 5000);
+    </script>
     <link rel="stylesheet" crossorigin href="./assets/main-QEkl09-0.css">
   </head>
 
   <body>
     <div id="root"></div>
+    <script>
+      // Hide the "Browser" tab (Electron-only feature, dead on web)
+      // + Inject "RemBeetle Extensions" section into About tab
+      new MutationObserver(function() {
+        document.querySelectorAll('button').forEach(function(btn) {
+          if (btn.textContent.trim() === 'Browser') btn.style.display = 'none';
+        });
+        // Inject extensions section after Copyright in About tab
+        if (!document.getElementById('rembeetle-extensions')) {
+          var copyrightEl = null;
+          document.querySelectorAll('p, span, div').forEach(function(el) {
+            if (el.textContent.trim().startsWith('© ') && el.textContent.indexOf('Open LLM VTuber') !== -1) {
+              copyrightEl = el.closest('div');
+            }
+          });
+          if (copyrightEl && copyrightEl.parentElement) {
+            var section = document.createElement('div');
+            section.id = 'rembeetle-extensions';
+            section.style.cssText = 'border-top: 1px solid rgba(255,255,255,0.16); padding-top: 16px; margin-top: 16px;';
+            section.innerHTML =
+              '<p style="font-weight:bold; margin-bottom:4px;">RemBeetle Extensions</p>' +
+              '<p style="margin-bottom:8px; opacity:0.9;">Extended by Brian Phan</p>' +
+              '<ul style="padding-left:20px; margin:0; opacity:0.8; font-size:14px; line-height:1.8;">' +
+              '<li>Google OAuth + Supabase JWT authentication (ES256/JWKS)</li>' +
+              '<li>Per-user persistent chat history via Postgres</li>' +
+              '<li>RAG long-term semantic memory (pgvector + OpenAI embeddings)</li>' +
+              '<li>OWASP security middleware (CSP, rate limiting, input sanitization)</li>' +
+              '<li>Multimodal vision support (camera + screen sharing)</li>' +
+              '</ul>';
+            copyrightEl.parentElement.appendChild(section);
+          }
+        }
+      }).observe(document.documentElement, {childList: true, subtree: true});
+    </script>
   </body>
 </html>
