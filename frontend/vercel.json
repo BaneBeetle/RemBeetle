@@ -58,7 +58,7 @@
       ]
     },
     {
-      "source": "/(index.html|config.js|auth-shell.js|theme.css|shell.js)",
+      "source": "/(index.html|config.js|auth-shell.js|framing.js|theme.css|shell.js)",
       "headers": [
         {
           "key": "Cache-Control",

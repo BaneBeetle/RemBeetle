@@ -41,7 +41,7 @@ fi
 rm -rf dist
 mkdir -p dist/assets dist/libs dist/web-tool dist/fonts
 # Explicit copy list: add every new file or directory here or it will not reach Vercel.
-cp index.html auth-shell.js theme.css shell.js favicon.ico rem.ico rem.jpg dist/
+cp index.html auth-shell.js framing.js theme.css shell.js favicon.ico rem.ico rem.jpg dist/
 cp assets/* dist/assets/
 cp libs/*   dist/libs/
 cp fonts/*  dist/fonts/     # self-hosted woff2 faces + their OFL licences (Midnight Companion theme)
