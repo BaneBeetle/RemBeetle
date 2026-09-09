@@ -40,7 +40,7 @@ fi
 
 rm -rf dist
 mkdir -p dist/assets dist/libs dist/web-tool
-cp index.html auth-shell.js favicon.ico rem.ico rem.jpg dist/
+cp index.html auth-shell.js framing.js favicon.ico rem.ico rem.jpg dist/
 cp assets/* dist/assets/
 cp libs/*   dist/libs/
 

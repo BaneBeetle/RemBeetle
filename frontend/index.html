@@ -226,6 +226,8 @@
       Total no-op when /api/config returns auth_enabled=false.
     -->
     <script src="./auth-shell.js"></script>
+    <!-- RemBeetle: keeps Rem framed like a webcam (moves the loaded model down; fail-open). -->
+    <script src="./framing.js" defer></script>
     <!--
       React bundle is loaded DYNAMICALLY by auth-shell.js after the
       Supabase session is settled, so the WebSocket wrapper already has

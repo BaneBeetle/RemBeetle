@@ -49,7 +49,7 @@
       ]
     },
     {
-      "source": "/(index.html|config.js|auth-shell.js)",
+      "source": "/(index.html|config.js|auth-shell.js|framing.js)",
       "headers": [
         {
           "key": "Cache-Control",
