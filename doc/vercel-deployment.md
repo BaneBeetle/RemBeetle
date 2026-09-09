@@ -108,6 +108,13 @@ on the server (each with a timestamped `.bak-*` copy next to the file):
 - `conf.yaml`: ElevenLabs `voice_id` changed to `lhTvHflPVOqgSWyuWQry` on 2026-09-09 (backup
   `conf.yaml.bak-2026-09-09-050902`; the earlier `conf.yaml.bak-2026-09-09-013000` predates the
   localhost bind change).
+- Smoother speech (2026-09-09, backups `*.bak-2026-09-09-052431`): `tts/elevenlabs_tts.py` now
+  uses ElevenLabs request stitching (`previous_text`, `next_text`, `previous_request_ids`, request
+  id read from the raw response, which the SDK returns as a context manager) and
+  `conversations/tts_manager.py` generates chunks in order under a lock for engines with
+  `supports_stitching`, passing the previous chunks' text and ids plus the next sentence when the
+  LLM has already produced it. `conf.yaml` `faster_first_response` is `False` (both agents), so the
+  first sentence is no longer split at commas. Other TTS engines keep the old parallel path.
 
 ## Lip sync and the CSP (2026-09-09)
 
