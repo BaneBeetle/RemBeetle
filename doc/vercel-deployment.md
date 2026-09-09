@@ -106,6 +106,15 @@ on the server (each with a timestamped `.bak-*` copy next to the file):
   `exp_06` blush, `exp_07` shocked, `exp_08` angry). The map also adds a `[shy]` tag. The repo copy
   of `model_dict.json` mirrors this.
 
+## Lip sync and the CSP (2026-09-09)
+
+The compiled frontend drives `ParamMouthOpenY` with `LAppWavFileHandler`, which `fetch()`es each
+TTS clip as a `data:audio/wav;base64,...` URL to measure loudness. A `connect-src` without `data:`
+makes Chrome refuse that fetch ("Refused to connect because it violates the document's Content
+Security Policy"); the audio still plays through the `<audio>` element, so the only symptom is a
+silent mouth. `frontend/vercel.json` now lists `data:` and `blob:` in `connect-src`. If the backend
+ever serves the frontend itself again, its security middleware's CSP needs the same allowance.
+
 ## Runbook
 
 Do the steps in order. Nothing user-facing changes until step 5.
