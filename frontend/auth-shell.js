@@ -137,33 +137,28 @@
       if (!btn) {
         btn = document.createElement('button');
         btn.id = 'auth-shell-button';
-        btn.setAttribute(
-          'style',
-          [
-            'position: fixed',
-            'top: 12px',
-            'right: 12px',
-            'z-index: 999999',
-            'padding: 8px 14px',
-            'border-radius: 8px',
-            'border: 1px solid rgba(255,255,255,0.18)',
-            'background: rgba(20, 20, 20, 0.78)',
-            'color: #fff',
-            'font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif',
-            'font-size: 13px',
-            'font-weight: 500',
-            'cursor: pointer',
-            'backdrop-filter: blur(10px)',
-            '-webkit-backdrop-filter: blur(10px)',
-            'box-shadow: 0 2px 10px rgba(0,0,0,0.25)',
-          ].join(';'),
-        );
+        btn.type = 'button';
+        btn.className = 'mc-auth';
+        // Only the positioning is inline, so the control stays reachable even if theme.css
+        // fails to load. Its look (glass pill, type, hover/focus) lives in theme.css under
+        // #auth-shell-button. z-index sits below the settings/history drawers (1400).
+        btn.setAttribute('style', 'position:fixed;top:14px;right:14px;z-index:1200;');
         document.body.appendChild(btn);
       }
 
       if (currentUser) {
         const label = currentUser.email || (currentUser.id || '').slice(0, 8);
-        btn.textContent = 'Sign out (' + label + ')';
+        btn.textContent = '';
+        const action = document.createElement('span');
+        action.className = 'mc-auth__label';
+        action.textContent = 'Sign out';
+        const meta = document.createElement('span');
+        meta.className = 'mc-auth__meta';
+        meta.textContent = label;
+        btn.appendChild(action);
+        btn.appendChild(meta);
+        btn.setAttribute('aria-label', 'Sign out (' + label + ')');
+        btn.title = 'Signed in as ' + label;
         btn.onclick = async function () {
           try {
             await supabase.auth.signOut();
@@ -173,6 +168,8 @@
         };
       } else {
         btn.textContent = 'Sign in with Google';
+        btn.removeAttribute('aria-label');
+        btn.removeAttribute('title');
         btn.onclick = async function () {
           try {
             await supabase.auth.signInWithOAuth({

@@ -1,0 +1,784 @@
+/* ==========================================================================
+   RemAI  ·  "Midnight Companion"  ·  theme.css
+
+   A quiet room at night with someone who listens. Deep navy-black ground,
+   Rem's blue used only as light (glows, edges, focus, the connection lamp),
+   glass only where controls live, chrome that recedes until you reach for it.
+
+   This layer restyles the compiled Chakra/Panda bundle from the outside.
+   Hooks, in order of preference:
+     1. data-mc="..." attributes set by shell.js (structure + live state)
+     2. Chakra's stable data-scope / data-part attributes
+     3. aria-labels, and DOM order under #root for the few layout-critical rules
+   Nothing here removes, hides or disables a functional control. If shell.js
+   fails, the data-mc rules simply do not match and the bundle's own dark look
+   remains underneath (fail-open).
+   ========================================================================== */
+
+/* ---- 1. Faces (self-hosted woff2, SIL OFL, licences in ./fonts) ---------- */
+@font-face {
+  font-family: "Bodoni Moda";
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url("./fonts/bodoni-moda-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Bodoni Moda";
+  font-style: italic;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url("./fonts/bodoni-moda-italic-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Source Sans 3";
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url("./fonts/source-sans-3-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ---- 2. Tokens ------------------------------------------------------------ */
+:root {
+  color-scheme: dark;
+
+  /* ground */
+  --mc-ink-0: #05070e;
+  --mc-ink-1: #0b1020;
+  --mc-ink-2: #121a2e;
+
+  /* text, cool-tinted so it belongs to the navy ground (all >= 4.5:1 on it) */
+  --mc-text:   #e8eef9;
+  --mc-text-2: #a9b6cf;
+  --mc-text-3: #8f9bb5;
+
+  /* Rem's blue, as light */
+  --mc-blue:       #8cc4ff;
+  --mc-blue-deep:  #5aa6f2;
+  --mc-glow:       rgba(140, 196, 255, 0.34);
+  --mc-glow-soft:  rgba(140, 196, 255, 0.14);
+  --mc-glow-faint: rgba(140, 196, 255, 0.08);
+
+  /* the one warm colour, reserved for "disconnected" */
+  --mc-ember: #f2b56b;
+
+  /* material */
+  --mc-hair:        rgba(160, 196, 255, 0.14);
+  --mc-hair-strong: rgba(160, 196, 255, 0.28);
+  --mc-glass:        rgba(10, 15, 28, 0.62);
+  --mc-glass-strong: rgba(9, 13, 24, 0.88);
+  --mc-glass-hi:     rgba(255, 255, 255, 0.06);
+  --mc-blur: blur(18px) saturate(1.25);
+
+  /* type */
+  --mc-font-text: "Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mc-font-display: "Bodoni Moda", "Bodoni MT", Didot, "Times New Roman", serif;
+
+  /* shape: controls 12, containers 16-20, chips and the sign-in pill full round */
+  --mc-r-control: 12px;
+  --mc-r-container: 16px;
+  --mc-r-bar: 20px;
+  --mc-r-pill: 999px;
+
+  /* motion */
+  --mc-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --mc-t-fast: 160ms;
+  --mc-t: 260ms;
+  --mc-t-slow: 520ms;
+  --mc-quiet: 0.72;   /* resting opacity of receding chrome on pointer devices */
+}
+
+/* ---- 3. Ground and browser surfaces --------------------------------------- */
+html {
+  background: var(--mc-ink-0);
+}
+body {
+  margin: 0;
+  background: var(--mc-ink-0);
+  color: var(--mc-text);
+  font-family: var(--mc-font-text) !important;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+/* ambient life: two lamps of blue and violet drifting behind the glass */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -12%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(55% 45% at 18% 88%, rgba(60, 118, 200, 0.30), transparent 62%),
+    radial-gradient(42% 38% at 84% 8%,  rgba(96, 74, 170, 0.20), transparent 62%),
+    radial-gradient(36% 34% at 55% 48%, rgba(28, 60, 124, 0.18), transparent 66%);
+  animation: mc-drift 80s ease-in-out infinite alternate;
+}
+@keyframes mc-drift {
+  from { transform: translate3d(-1.5%, -1%, 0) scale(1); }
+  to   { transform: translate3d(1.5%, 1.5%, 0) scale(1.05); }
+}
+@keyframes mc-breathe {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.55; }
+}
+
+#root { position: relative; }
+#root button, #root input, #root textarea, #root select, #root [role="combobox"] {
+  font-family: var(--mc-font-text) !important;
+}
+
+::selection { background: rgba(140, 196, 255, 0.35); color: #fff; }
+* { scrollbar-width: thin; scrollbar-color: rgba(160, 196, 255, 0.24) transparent; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(160, 196, 255, 0.22); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(160, 196, 255, 0.36); }
+
+/* one focus language everywhere: a ring of light */
+#root :focus-visible,
+#auth-shell-button:focus-visible {
+  outline: 2px solid var(--mc-blue) !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--mc-glow-soft) !important;
+}
+
+/* ---- 4. Layout shell: app, sidebar, stage --------------------------------- */
+[data-mc="app"] { background: transparent !important; }
+[data-mc="sidebar-wrap"] { background: transparent !important; }
+/* the bundle transitions "all"; keep its slide/resize motion but let colour and
+   material land instantly, so there is no flash of the old look on first paint */
+[data-mc="sidebar-wrap"], [data-mc="sidebar"], [data-mc="footer-inner"], [data-mc="live2d"] {
+  transition-property: left, right, width, height, transform, opacity !important;
+}
+
+[data-mc="sidebar"] {
+  background: var(--mc-glass) !important;
+  -webkit-backdrop-filter: var(--mc-blur);
+  backdrop-filter: var(--mc-blur);
+  box-shadow:
+    inset -1px 0 0 var(--mc-hair),
+    inset 0 1px 0 var(--mc-glass-hi),
+    18px 0 60px rgba(0, 0, 0, 0.35);
+  color: var(--mc-text) !important;
+}
+[data-mc="sidebar-content"] { background: transparent !important; }
+[data-mc="history"],
+[data-mc="history"] > div > div > div { background: transparent !important; }
+
+/* the sidebar's collapse handle: a hairline strip, chevron lit on approach */
+[data-mc="sidebar-handle"] {
+  background: linear-gradient(90deg, rgba(10, 15, 28, 0.0), rgba(10, 15, 28, 0.35)) !important;
+  color: var(--mc-text-3) !important;
+  cursor: pointer;
+  transition: color var(--mc-t) var(--mc-ease), opacity var(--mc-t) var(--mc-ease);
+}
+[data-mc="sidebar-handle"]::after {         /* widen the tap target without moving layout */
+  content: "";
+  position: absolute;
+  inset: 0 -10px 0 -10px;
+}
+[data-mc="sidebar-handle"] svg {
+  width: 16px; height: 16px;
+  filter: drop-shadow(0 0 6px var(--mc-glow));
+}
+[data-mc="sidebar-handle"]:hover { color: var(--mc-blue) !important; }
+
+/* icon row (settings, group, history, new chat, mode) */
+[data-mc="iconrow"] { gap: 2px; }
+[data-mc="iconrow"] button {
+  background: transparent !important;
+  color: var(--mc-text-2) !important;
+  border-radius: var(--mc-r-control) !important;
+  box-shadow: none !important;
+  transition: background var(--mc-t) var(--mc-ease), color var(--mc-t) var(--mc-ease), opacity var(--mc-t) var(--mc-ease);
+}
+[data-mc="iconrow"] button svg { width: 18px; height: 18px; }
+[data-mc="iconrow"] button:hover,
+[data-mc="iconrow"] button[data-state="open"] {
+  background: var(--mc-glow-soft) !important;
+  color: var(--mc-text) !important;
+}
+[data-mc="iconrow"] button:active { transform: scale(0.97); }
+
+/* empty-state line: the one editorial moment in the sidebar */
+[data-mc="empty"] {
+  font-family: var(--mc-font-display) !important;
+  font-style: italic;
+  font-weight: 500 !important;
+  font-size: 21px !important;
+  line-height: 1.35 !important;
+  letter-spacing: 0.005em;
+  color: var(--mc-text-2) !important;
+  text-wrap: balance;
+  max-width: 22ch;
+  margin-inline: auto;
+}
+
+/* camera / screen panels */
+[data-mc="panels"] [role="tablist"] { gap: 4px !important; }
+[data-mc="panels"] [role="tab"] {
+  background: transparent !important;
+  color: var(--mc-text-3) !important;
+  border-radius: 10px !important;
+  font-weight: 500 !important;
+  transition: background var(--mc-t) var(--mc-ease), color var(--mc-t) var(--mc-ease);
+}
+[data-mc="panels"] [role="tab"]:hover { color: var(--mc-text) !important; }
+[data-mc="panels"] [role="tab"][aria-selected="true"] {
+  background: var(--mc-glow-soft) !important;
+  color: var(--mc-text) !important;
+  box-shadow: inset 0 0 0 1px var(--mc-hair);
+}
+[data-mc="panels"] [data-scope="tooltip"][data-part="trigger"] {
+  background: rgba(6, 10, 20, 0.35) !important;
+  border: 1px solid var(--mc-hair) !important;
+  border-radius: var(--mc-r-container) !important;
+  color: var(--mc-text-2) !important;
+  transition: border-color var(--mc-t) var(--mc-ease), background var(--mc-t) var(--mc-ease);
+}
+[data-mc="panels"] [data-scope="tooltip"][data-part="trigger"]:hover {
+  border-color: var(--mc-hair-strong) !important;
+  background: rgba(6, 10, 20, 0.5) !important;
+}
+
+/* stage: background art fills the whole height; the footer floats over it */
+[data-mc="stage"] { background: transparent !important; }
+[data-mc="bg"] { height: 100% !important; flex: 1 1 auto !important; }
+[data-mc="bg"] img { height: 100% !important; }
+
+/* ---- 5. The connection lamp ---------------------------------------------- */
+/* The bundle encodes connected/disconnected only as green/red backgrounds, so
+   shell.js reads that colour and the background override is keyed on the state
+   attribute (without it the bundle's colour stays visible and readable). */
+[data-mc="ws"] > div {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 13px 7px 11px !important;
+  border-radius: var(--mc-r-pill) !important;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: inset 0 0 0 1px var(--mc-hair), inset 0 1px 0 var(--mc-glass-hi);
+  color: var(--mc-text-2) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.01em;
+  line-height: 1 !important;
+  transition: opacity var(--mc-t) var(--mc-ease);
+}
+[data-mc="ws"][data-mc-ws] > div {
+  background: var(--mc-glass) !important;
+  color: var(--mc-text-2) !important;
+}
+[data-mc="ws"] > div::before {
+  content: "";
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--mc-text-3);
+  transition: background var(--mc-t-slow) var(--mc-ease), box-shadow var(--mc-t-slow) var(--mc-ease);
+}
+[data-mc="ws"][data-mc-ws="on"] > div::before {
+  background: var(--mc-blue);
+  box-shadow: 0 0 10px 2px var(--mc-glow), 0 0 2px 0 #fff;
+  animation: mc-breathe 4.2s ease-in-out infinite;
+}
+[data-mc="ws"][data-mc-ws="off"] > div::before {
+  background: var(--mc-ember);
+  box-shadow: 0 0 10px 1px rgba(242, 181, 107, 0.45);
+}
+
+/* ---- 6. Subtitles --------------------------------------------------------- */
+[data-mc="subtitle"] > div {
+  background: rgba(6, 10, 20, 0.58) !important;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border-radius: var(--mc-r-container) !important;
+  box-shadow: inset 0 0 0 1px var(--mc-hair), 0 12px 36px rgba(0, 0, 0, 0.32);
+}
+[data-mc="subtitle"] p {
+  font-family: var(--mc-font-text) !important;
+  font-weight: 500 !important;
+  color: var(--mc-text) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+  text-wrap: pretty;
+}
+
+/* ---- 7. The input bar ----------------------------------------------------- */
+/* The footer floats over the art and sizes to its content; the bundle's collapse
+   (chevron rotated 180deg, mirrored by shell.js into data-mc-footer) hides the
+   controls explicitly instead of relying on the bundle's clipped fixed height. */
+[data-mc="footer"] {
+  position: absolute !important;
+  left: 0; right: 0; bottom: 0;
+  height: auto !important;
+  min-height: 0 !important;
+  z-index: 10;
+  background: transparent !important;
+}
+[data-mc="footer-inner"] {
+  background: transparent !important;
+  display: flex !important;
+  flex-direction: column;
+  height: auto !important;
+  overflow: visible !important;
+}
+[data-mc="footer"][data-mc-footer="closed"] [data-mc="footer-body"] { display: none !important; }
+[data-mc="footer-body"] {
+  padding: 0 16px calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* collapse chevron: small, centred, lit on approach */
+[data-mc="footer-handle"] {
+  height: 24px !important;
+  flex: none !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  color: var(--mc-text-3) !important;
+  cursor: pointer;
+  transition: color var(--mc-t) var(--mc-ease), opacity var(--mc-t) var(--mc-ease);
+}
+[data-mc="footer-handle"]::after {        /* 40px-tall tap target, centred */
+  content: "";
+  position: absolute;
+  left: 50%; top: -16px;
+  width: 140px; height: 40px;
+  transform: translateX(-50%);
+}
+[data-mc="footer-handle"] svg {
+  width: 30px; height: 16px;
+  padding: 0 8px;
+  border-radius: var(--mc-r-pill);
+  background: var(--mc-glass);
+  box-shadow: inset 0 0 0 1px var(--mc-hair);
+}
+[data-mc="footer-handle"]:hover { color: var(--mc-blue) !important; }
+
+/* the bar itself: one piece of glass holding every control */
+[data-mc="controls"] {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  width: min(100%, 1040px) !important;
+  height: auto !important;
+  margin: 0 auto !important;
+  padding: 8px;
+  border-radius: var(--mc-r-bar);
+  background: var(--mc-glass);
+  -webkit-backdrop-filter: var(--mc-blur);
+  backdrop-filter: var(--mc-blur);
+  box-shadow:
+    inset 0 0 0 1px var(--mc-hair),
+    inset 0 1px 0 var(--mc-glass-hi),
+    0 20px 60px rgba(0, 0, 0, 0.42);
+}
+[data-mc="left"] {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px;
+  width: auto !important;
+  height: auto !important;
+  flex: none;
+}
+[data-mc="state-wrap"], [data-mc="btnrow"] {
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+}
+[data-mc="btnrow"] { display: flex !important; gap: 8px; }
+
+/* AI state chip: a hairline chip with a lamp that only lights when Rem is busy */
+[data-mc="state"] {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  height: 34px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  padding: 0 12px 0 11px !important;
+  border-radius: var(--mc-r-pill) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  box-shadow: inset 0 0 0 1px var(--mc-hair);
+  color: var(--mc-text-2) !important;
+  overflow: visible !important;
+  transition: box-shadow var(--mc-t-slow) var(--mc-ease);
+}
+[data-mc="state"]::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--mc-text-3);
+  transition: background var(--mc-t-slow) var(--mc-ease), box-shadow var(--mc-t-slow) var(--mc-ease);
+}
+[data-mc="state"][data-mc-ai="active"] {
+  box-shadow: inset 0 0 0 1px rgba(140, 196, 255, 0.45), 0 0 18px var(--mc-glow-soft);
+  color: var(--mc-text) !important;
+}
+[data-mc="state"][data-mc-ai="active"]::before {
+  background: var(--mc-blue);
+  box-shadow: 0 0 10px 2px var(--mc-glow);
+  animation: mc-breathe 2.2s ease-in-out infinite;
+}
+[data-mc="state"] p {
+  margin: 0 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.01em;
+  color: inherit !important;
+  max-width: 132px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* microphone and interrupt (the mic's background override is keyed on its
+   state attribute so shell.js can still read the bundle's colour as a fallback) */
+[data-mc="mic"], [data-mc="interrupt"] {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  padding: 0 !important;
+  border-radius: var(--mc-r-control) !important;
+  color: var(--mc-text-2) !important;
+  transition: background var(--mc-t) var(--mc-ease), color var(--mc-t) var(--mc-ease),
+              box-shadow var(--mc-t-slow) var(--mc-ease), transform var(--mc-t-fast) var(--mc-ease);
+}
+[data-mc="mic"][data-mc-mic], [data-mc="interrupt"] {
+  background: rgba(255, 255, 255, 0.04) !important;
+  box-shadow: inset 0 0 0 1px var(--mc-hair), inset 0 1px 0 var(--mc-glass-hi) !important;
+}
+[data-mc="mic"] svg, [data-mc="interrupt"] svg { width: 18px !important; height: 18px !important; }
+[data-mc="mic"]:hover, [data-mc="interrupt"]:hover {
+  background: var(--mc-glow-soft) !important;
+  color: var(--mc-text) !important;
+}
+[data-mc="mic"]:active, [data-mc="interrupt"]:active { transform: scale(0.96); }
+/* live microphone: the button becomes a lamp */
+[data-mc="mic"][data-mc-mic="on"] {
+  background: rgba(140, 196, 255, 0.16) !important;
+  color: #e3f1ff !important;
+  box-shadow: inset 0 0 0 1px rgba(140, 196, 255, 0.5), 0 0 22px var(--mc-glow-soft) !important;
+}
+[data-mc="mic"][data-mc-mic="off"] { color: var(--mc-text-3) !important; }
+[data-mc="mic"][data-mc-mic="off"]:hover { color: var(--mc-text) !important; }
+
+/* text input */
+[data-mc="inputwrap"] {
+  flex: 1 1 auto !important;
+  min-width: 0;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+}
+[data-mc="inputwrap"] > div { height: auto !important; }
+[data-mc="textarea"] {
+  height: 52px !important;
+  min-height: 52px !important;
+  max-height: 52px !important;
+  padding: 14px 16px 14px 50px !important;
+  font-size: 16px !important;
+  line-height: 24px !important;
+  border-radius: 14px !important;
+  border: 1px solid transparent !important;
+  background: rgba(255, 255, 255, 0.045) !important;
+  color: var(--mc-text) !important;
+  caret-color: var(--mc-blue);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+  transition: border-color var(--mc-t) var(--mc-ease), box-shadow var(--mc-t-slow) var(--mc-ease), background var(--mc-t) var(--mc-ease);
+}
+[data-mc="textarea"]::placeholder { color: var(--mc-text-3) !important; opacity: 1; }
+[data-mc="textarea"]:hover { background: rgba(255, 255, 255, 0.06) !important; }
+[data-mc="textarea"]:focus, [data-mc="textarea"]:focus-visible {
+  outline: none !important;
+  border-color: rgba(140, 196, 255, 0.55) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 0 0 0 3px var(--mc-glow-soft), 0 0 28px var(--mc-glow-faint) !important;
+}
+[data-mc="attach"] {
+  top: 50% !important;
+  left: 6px !important;
+  transform: translateY(-50%);
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 10px !important;
+  background: transparent !important;
+  color: var(--mc-text-3) !important;
+  transition: color var(--mc-t) var(--mc-ease), background var(--mc-t) var(--mc-ease);
+}
+[data-mc="attach"] svg { width: 18px !important; height: 18px !important; }
+[data-mc="attach"]:hover { color: var(--mc-text) !important; background: var(--mc-glow-soft) !important; }
+
+/* ---- 8. Drawers, dialogs, menus, selects, tooltips, toasts ---------------- */
+[data-scope="dialog"][data-part="backdrop"] {
+  background: rgba(3, 6, 14, 0.5) !important;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+[data-scope="dialog"][data-part="content"] {
+  background: var(--mc-glass-strong) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.2);
+  backdrop-filter: blur(24px) saturate(1.2);
+  color: var(--mc-text) !important;
+  box-shadow: inset 0 0 0 1px var(--mc-hair), 24px 0 90px rgba(0, 0, 0, 0.55) !important;
+}
+[data-scope="dialog"][data-part="title"] {
+  font-family: var(--mc-font-display) !important;
+  font-weight: 500 !important;
+  font-size: 26px !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0.004em;
+  color: var(--mc-text) !important;
+}
+[data-scope="dialog"][data-part="close-trigger"] {
+  border-radius: var(--mc-r-pill) !important;
+  color: var(--mc-text-2) !important;
+  border-color: transparent !important;
+  transition: background var(--mc-t) var(--mc-ease), color var(--mc-t) var(--mc-ease);
+}
+[data-scope="dialog"][data-part="close-trigger"]:hover {
+  background: var(--mc-glow-soft) !important;
+  color: var(--mc-text) !important;
+}
+[data-scope="dialog"] [role="tablist"] {
+  gap: 2px !important;
+  padding-bottom: 6px;
+  box-shadow: inset 0 -1px 0 var(--mc-hair);
+}
+[data-scope="dialog"] [role="tab"] {
+  border-radius: 10px !important;
+  background: transparent !important;
+  color: var(--mc-text-3) !important;
+  font-weight: 500 !important;
+  transition: background var(--mc-t) var(--mc-ease), color var(--mc-t) var(--mc-ease);
+}
+[data-scope="dialog"] [role="tab"]:hover { color: var(--mc-text) !important; }
+[data-scope="dialog"] [role="tab"][aria-selected="true"] {
+  background: var(--mc-glow-soft) !important;
+  color: var(--mc-text) !important;
+  box-shadow: inset 0 0 0 1px var(--mc-hair);
+}
+[data-scope="dialog"] input:not([type="checkbox"]):not([type="radio"]),
+[data-scope="dialog"] textarea,
+[data-scope="dialog"] select,
+[data-scope="dialog"] [role="combobox"] {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid var(--mc-hair) !important;
+  border-radius: 10px !important;
+  color: var(--mc-text) !important;
+  transition: border-color var(--mc-t) var(--mc-ease), box-shadow var(--mc-t) var(--mc-ease);
+}
+[data-scope="dialog"] input:not([type="checkbox"]):not([type="radio"]):focus-visible,
+[data-scope="dialog"] textarea:focus-visible,
+[data-scope="dialog"] [role="combobox"]:focus-visible {
+  outline: none !important;
+  border-color: rgba(140, 196, 255, 0.55) !important;
+  box-shadow: 0 0 0 3px var(--mc-glow-soft) !important;
+}
+[data-scope="dialog"] input::placeholder { color: var(--mc-text-3) !important; }
+[data-scope="dialog"] button:not([role="tab"]):not([data-part="close-trigger"]):not([role="combobox"]) {
+  border-radius: 10px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid var(--mc-hair) !important;
+  color: var(--mc-text) !important;
+  font-weight: 500 !important;
+  transition: background var(--mc-t) var(--mc-ease), border-color var(--mc-t) var(--mc-ease);
+}
+[data-scope="dialog"] button:not([role="tab"]):not([data-part="close-trigger"]):not([role="combobox"]):hover {
+  background: var(--mc-glow-soft) !important;
+  border-color: var(--mc-hair-strong) !important;
+}
+[data-scope="dialog"] [data-scope="switch"][data-part="control"][data-state="checked"] {
+  background: var(--mc-blue-deep) !important;
+  box-shadow: 0 0 14px var(--mc-glow-soft);
+}
+[data-scope="dialog"] [data-scope="slider"] [data-part="range"] { background: var(--mc-blue-deep) !important; }
+[data-scope="dialog"] [data-scope="slider"] [data-part="thumb"] {
+  background: var(--mc-text) !important;
+  box-shadow: 0 0 0 1px var(--mc-hair-strong), 0 0 12px var(--mc-glow-soft) !important;
+}
+/* the About-tab section injected by index.html */
+.mc-ext { border-top: 1px solid var(--mc-hair); padding-top: 18px; margin-top: 18px; }
+.mc-ext__title {
+  font-family: var(--mc-font-display);
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1.2;
+  margin: 0 0 4px;
+  color: var(--mc-text);
+}
+.mc-ext__by { margin: 0 0 10px; color: var(--mc-text-2); }
+.mc-ext__list { margin: 0; padding-left: 18px; color: var(--mc-text-2); font-size: 14px; line-height: 1.75; }
+.mc-ext__list li::marker { color: var(--mc-blue); }
+
+[data-scope="menu"][data-part="content"],
+[data-scope="select"][data-part="content"] {
+  background: var(--mc-glass-strong) !important;
+  -webkit-backdrop-filter: var(--mc-blur);
+  backdrop-filter: var(--mc-blur);
+  color: var(--mc-text) !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  padding: 6px !important;
+  box-shadow: inset 0 0 0 1px var(--mc-hair), 0 18px 50px rgba(0, 0, 0, 0.5) !important;
+}
+[data-scope="menu"][data-part="item"],
+[data-scope="select"][data-part="item"] {
+  color: var(--mc-text-2) !important;
+  border-radius: 8px !important;
+  transition: background var(--mc-t-fast) var(--mc-ease), color var(--mc-t-fast) var(--mc-ease);
+}
+[data-scope="menu"][data-part="item"]:hover,
+[data-scope="menu"][data-part="item"][data-highlighted],
+[data-scope="select"][data-part="item"]:hover,
+[data-scope="select"][data-part="item"][data-highlighted] {
+  background: var(--mc-glow-soft) !important;
+  color: var(--mc-text) !important;
+}
+[data-scope="menu"][data-part="item"][data-state="checked"],
+[data-scope="select"][data-part="item"][data-state="checked"] { color: var(--mc-text) !important; }
+[data-scope="menu"][data-part="item-indicator"],
+[data-scope="select"][data-part="item-indicator"] { color: var(--mc-blue) !important; }
+
+[data-scope="tooltip"][data-part="content"] {
+  background: var(--mc-ink-2) !important;
+  color: var(--mc-text) !important;
+  border-radius: 8px !important;
+  box-shadow: inset 0 0 0 1px var(--mc-hair), 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+}
+[data-scope="toast"][data-part="root"] {
+  background: var(--mc-glass-strong) !important;
+  -webkit-backdrop-filter: var(--mc-blur);
+  backdrop-filter: var(--mc-blur);
+  color: var(--mc-text) !important;
+  border-radius: 12px !important;
+  box-shadow: inset 0 0 0 1px var(--mc-hair), 0 18px 50px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* ---- 9. Sign-in pill (auth-shell.js renders the element) ------------------ */
+#auth-shell-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  max-width: calc(100vw - 28px);
+  padding: 0 16px;
+  border-radius: var(--mc-r-pill);
+  border: 1px solid var(--mc-hair-strong);
+  background: var(--mc-glass);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  backdrop-filter: blur(16px) saturate(1.2);
+  color: var(--mc-text);
+  font: 500 13.5px/1 var(--mc-font-text);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 var(--mc-glass-hi), 0 10px 28px rgba(0, 0, 0, 0.35);
+  transition: border-color var(--mc-t) var(--mc-ease), box-shadow var(--mc-t-slow) var(--mc-ease),
+              opacity var(--mc-t) var(--mc-ease), transform var(--mc-t-fast) var(--mc-ease);
+}
+#auth-shell-button:hover {
+  border-color: rgba(140, 196, 255, 0.55);
+  box-shadow: inset 0 1px 0 var(--mc-glass-hi), 0 0 26px var(--mc-glow-soft), 0 10px 28px rgba(0, 0, 0, 0.35);
+}
+#auth-shell-button:active { transform: scale(0.98); }
+#auth-shell-button .mc-auth__meta {
+  color: var(--mc-text-3);
+  font-weight: 400;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- 10. Chrome recedes on pointer devices only --------------------------- */
+@media (hover: hover) and (pointer: fine) {
+  [data-mc="iconrow"] button,
+  [data-mc="sidebar-handle"],
+  [data-mc="footer-handle"],
+  [data-mc="attach"] { opacity: var(--mc-quiet); }
+  [data-mc="ws"] > div,
+  #auth-shell-button { opacity: 0.86; }
+
+  [data-mc="iconrow"] button:hover, [data-mc="iconrow"] button:focus-visible, [data-mc="iconrow"] button[data-state="open"],
+  [data-mc="sidebar-handle"]:hover,
+  [data-mc="footer-handle"]:hover,
+  [data-mc="attach"]:hover, [data-mc="attach"]:focus-visible,
+  [data-mc="ws"] > div:hover,
+  #auth-shell-button:hover, #auth-shell-button:focus-visible { opacity: 1; }
+  [data-mc="iconrow"]:hover button { opacity: 1; }
+}
+
+/* ---- 11. Phones and small tablets ----------------------------------------- */
+@media (max-width: 1023px) {
+  /* The bundle makes the sidebar position:absolute here but collapses it to a 16px
+     strip whose content never expands, so we own the drawer: the character keeps the
+     whole stage, and the panel slides with `left` (layout, deterministic) driven by
+     shell.js's #root[data-mc-sidebar] state. `transform:none` neutralises the bundle's
+     own translateX so the two never disagree. Everything is gated on [data-mc-ready]
+     (set by shell.js after it tags the app); if the script never runs, none of this
+     applies and the bundle's native layout stands (fail-open). */
+  /* The bundle's own drawer clips its content and traps it below the full-width Live2D
+     canvas, so we take clean ownership on mobile: lift the wrap to a viewport-fixed
+     overlay (its own stacking context, above the canvas and the z-10 chrome) and slide it
+     with transform driven by shell.js's #root[data-mc-sidebar] state. The bundle's own
+     transform on the inner sidebar is neutralised so the two never disagree. The handle
+     rides at the drawer's edge: a 24px rail on the left when closed, the inner edge when
+     open. All gated on [data-mc-ready] so a dead shell.js falls back to native layout. */
+  #root[data-mc-ready] > div:nth-child(2) > div:first-child {
+    position: fixed !important;
+    top: 0 !important; bottom: 0 !important; left: 0 !important;
+    width: min(440px, 100vw) !important; height: 100dvh !important;
+    min-width: 0 !important; z-index: 60 !important; overflow: visible !important;
+    transform: translateX(calc(24px - min(440px, 100vw))) !important;   /* closed: 24px rail */
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+  #root[data-mc-ready][data-mc-sidebar="open"] > div:nth-child(2) > div:first-child {
+    transform: translateX(0) !important;
+  }
+  #root[data-mc-ready] > div:nth-child(2) > div:first-child > div {
+    position: absolute !important;
+    top: 0 !important; left: 0 !important;
+    width: 100% !important; max-width: 100% !important; height: 100% !important;
+    transform: none !important;
+  }
+
+  [data-mc="sidebar-handle"] {
+    background: linear-gradient(90deg, rgba(10, 15, 28, 0.0), rgba(10, 15, 28, 0.55)) !important;
+  }
+  [data-mc="sidebar-content"] { overflow-y: auto !important; overflow-x: hidden !important; }
+  #root[data-mc-sidebar="open"] ~ #auth-shell-button { top: 62px !important; }
+  [data-scope="dialog"][data-part="content"] { width: min(440px, 100vw) !important; max-width: 100vw !important; }
+}
+@media (max-width: 640px) {
+  [data-mc="footer-body"] { padding-left: 10px !important; padding-right: 10px !important; }
+  [data-mc="controls"] { gap: 6px; padding: 6px; border-radius: 18px; }
+  [data-mc="left"], [data-mc="btnrow"] { gap: 6px; }
+  [data-mc="state"] { padding: 0 10px 0 9px !important; }
+  [data-mc="state"] p { max-width: 64px; font-size: 12px !important; }
+  [data-mc="textarea"] { padding-left: 46px !important; }
+  [data-mc="attach"] { left: 3px !important; }
+  #auth-shell-button { padding: 0 14px; }
+  #auth-shell-button .mc-auth__meta { display: none; }
+}
+
+/* ---- 12. Preferences ------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  :root { --mc-t-fast: 0ms; --mc-t: 0ms; --mc-t-slow: 0ms; }
+  body::before { animation: none; }
+  [data-mc="ws"][data-mc-ws="on"] > div::before,
+  [data-mc="state"][data-mc-ai="active"]::before { animation: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root { --mc-glass: #0c1222; --mc-glass-strong: #0b1020; --mc-blur: none; }
+  [data-mc="ws"] > div, [data-mc="subtitle"] > div, #auth-shell-button,
+  [data-scope="dialog"][data-part="backdrop"] {
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+  }
+}
