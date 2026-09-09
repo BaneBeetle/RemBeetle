@@ -105,6 +105,9 @@ on the server (each with a timestamped `.bak-*` copy next to the file):
   really has (`exp_01` neutral, `exp_02` closed-eye smile, `exp_04` sparkly smile, `exp_05` frown,
   `exp_06` blush, `exp_07` shocked, `exp_08` angry). The map also adds a `[shy]` tag. The repo copy
   of `model_dict.json` mirrors this.
+- `conf.yaml`: ElevenLabs `voice_id` changed to `lhTvHflPVOqgSWyuWQry` on 2026-09-09 (backup
+  `conf.yaml.bak-2026-09-09-050902`; the earlier `conf.yaml.bak-2026-09-09-013000` predates the
+  localhost bind change).
 
 ## Lip sync and the CSP (2026-09-09)
 
