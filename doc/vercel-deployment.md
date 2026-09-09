@@ -92,6 +92,20 @@ The compiled bundle in `frontend/assets/` is untouched; the shell fails open. Tw
 directions were built and reviewed on branches `redesign/daylight` and `redesign/editorial`, then
 deleted; `redesign/midnight` stays on GitHub as the merged reference.
 
+## Backend changes made outside git (2026-09-09)
+
+The production backend in `/home/ubuntu/RemBeetle` is not a git checkout, so these edits live only
+on the server (each with a timestamped `.bak-*` copy next to the file):
+
+- `src/open_llm_vtuber/agent/transformers.py`: `display_processor` now runs `clean_display_text`,
+  which strips emotion tags such as `[joy]` from the on-screen text, collapses double spaces and adds
+  one trailing space so concatenated sentences in the chat bubble stay apart. Speech and expressions
+  were already extracted before this step, so they are unaffected.
+- `model_dict.json`: REM `kScale` 0.75 and a new `emotionMap` that points at the faces the model
+  really has (`exp_01` neutral, `exp_02` closed-eye smile, `exp_04` sparkly smile, `exp_05` frown,
+  `exp_06` blush, `exp_07` shocked, `exp_08` angry). The map also adds a `[shy]` tag. The repo copy
+  of `model_dict.json` mirrors this.
+
 ## Runbook
 
 Do the steps in order. Nothing user-facing changes until step 5.
