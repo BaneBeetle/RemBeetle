@@ -48,15 +48,29 @@ the variable is missing or if the host is not allowed by the Content-Security-Po
 - `frontend/assets/main-nu7uwxNJ.js`, `main-QEkl09-0.css`, `auth-shell.js`, `favicon.ico`, `libs/live2dcubismcore.min.js`, `libs/vad.worklet.bundle.min.js`: synced from the production server (the repo copy was stale; `index.html` referenced a bundle that was not in git).
 - `.gitignore`: ignores `frontend/dist/`.
 
-## Status (2026-09-08)
+## Status (2026-09-08): cutover complete
 
-Steps 1 and 2 are done. The backend answers at `https://api.rembeetle.com` (Caddy block added,
-Let's Encrypt certificate issued) and the frontend is live on Vercel, project `rem-beetle-ydhi`,
-production URL `https://rem-beetle-ydhi.vercel.app`, built from commit 22026be. Verified in a
-browser: WebSocket connected to the EC2 backend, Live2D model, backgrounds and `/api/config`
-loaded cross-origin with zero failed requests, CSP and cache headers applied. Steps 3 to 5
-(Supabase preview redirect, DNS TTL, domain cutover) are still to do. A duplicate Vercel project
-named `rem-beetle` from the first import attempt also exists and can be deleted.
+`https://rembeetle.com` is served by Vercel (project `rem-beetle-ydhi`, team banebeetles-projects)
+and talks to the backend at `https://api.rembeetle.com` on EC2. `www.rembeetle.com` is a 308 redirect
+to the apex, plain HTTP redirects to HTTPS, and Vercel issued the certificates itself within a
+minute of the DNS change. Verified with headers, the generated `config.js`, the asset paths, the
+WebSocket handshake to the backend, and a browser load.
+
+DNS at Squarespace after the cutover:
+
+| Name | Type | TTL | Value |
+| --- | --- | --- | --- |
+| `@` | A | 30 min | `216.198.79.1` (Vercel) |
+| `www` | A | 4 h | `216.198.79.1` (Vercel; Squarespace does not allow changing the type of an existing record, so the CNAME Vercel suggested was not used. Vercel accepts the A record.) |
+| `api` | A | 30 min | `54.196.106.185` (EC2) |
+
+Rollback: set the `@` and `www` records back to `54.196.106.185`. Caddy on EC2 still serves both
+names, so nothing else is needed; propagation takes up to the TTL.
+
+Still to do, a few days after the cutover once no traffic reaches EC2 for the apex names:
+remove `rembeetle.com, www.rembeetle.com` from the Caddyfile (keep `api.rembeetle.com`), close
+port 12393 in the security group, delete the duplicate Vercel project `rem-beetle`, delete the
+remote branch `vercel-frontend`, and optionally re-save the Vercel env var without its leading space.
 
 ## Runbook
 
