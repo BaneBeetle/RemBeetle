@@ -115,6 +115,11 @@ on the server (each with a timestamped `.bak-*` copy next to the file):
   `supports_stitching`, passing the previous chunks' text and ids plus the next sentence when the
   LLM has already produced it. `conf.yaml` `faster_first_response` is `False` (both agents), so the
   first sentence is no longer split at commas. Other TTS engines keep the old parallel path.
+- Voice model (2026-09-09, backup `conf.yaml.bak-2026-09-09-055755`): ElevenLabs `model_id`
+  `eleven_multilingual_v2`, stability 0.5, similarity_boost 0.75, style 0, speaker boost on, chosen by
+  ear from four rendered variants of the same phrase. Eleven v3 sounded closest to the ElevenLabs
+  website but the API rejects every stitching parameter for it, so it would need whole-reply requests
+  (LLM must finish first) to avoid seams. Turbo v2.5 is ~0.3 s per sentence, multilingual v2 ~1 s.
 
 ## Lip sync and the CSP (2026-09-09)
 
