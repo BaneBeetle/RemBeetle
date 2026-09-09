@@ -118,6 +118,16 @@ Security Policy"); the audio still plays through the `<audio>` element, so the o
 silent mouth. `frontend/vercel.json` now lists `data:` and `blob:` in `connect-src`. If the backend
 ever serves the frontend itself again, its security middleware's CSP needs the same allowance.
 
+## Background (2026-09-09)
+
+The backend serves backgrounds from `/home/ubuntu/RemBeetle/backgrounds/` at `/bg/<file>`; the
+mansion hallway was added as `mansion-hallway.jpeg` (1920x1080 JPEG). The compiled app hardcodes
+`/bg/ceiling-window-room-night.jpeg` as its default and keeps the user's choice in localStorage
+(`backgroundUrl`, JSON string), so `frontend/framing.js` seeds the hallway as the default when
+nothing is stored or the old default is stored, and rebases stored `/bg/` URLs onto the current
+backend origin (choices saved before the Vercel move pointed at `rembeetle.com/bg/...`, which now
+404s). A background chosen in Settings is left alone.
+
 ## Runbook
 
 Do the steps in order. Nothing user-facing changes until step 5.

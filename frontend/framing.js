@@ -59,3 +59,38 @@
 
   setInterval(frame, 500);
 })();
+
+/*
+ * RemBeetle: default background.
+ *
+ * The compiled app hardcodes /bg/ceiling-window-room-night.jpeg as its default background and
+ * remembers the user's choice in localStorage under "backgroundUrl" (a JSON string). This runs
+ * before the bundle (framing.js is deferred; the bundle is loaded later by auth-shell.js) and:
+ *   1. rebases a stored /bg/ URL onto the current backend origin, so choices saved when the page
+ *      was served by the backend itself keep working now that the page lives on Vercel;
+ *   2. switches the old default to the mansion hallway. A background the user picked in
+ *      Settings is left alone. Fail-open.
+ */
+(function () {
+  'use strict';
+  var OLD_DEFAULT = '/bg/ceiling-window-room-night.jpeg';
+  var NEW_DEFAULT = '/bg/mansion-hallway.jpeg';
+  try {
+    var origin = String(window.__REMAI_RESOLVED_BACKEND_ORIGIN || window.location.origin).replace(/\/+$/, '');
+    var raw = window.localStorage.getItem('backgroundUrl');
+    var next;
+    if (raw === null) {
+      next = origin + NEW_DEFAULT;
+    } else {
+      var cur = JSON.parse(raw);
+      if (typeof cur !== 'string') return;
+      var i = cur.indexOf('/bg/');
+      if (i < 0) return;                                  // not one of the backend's backgrounds
+      var path = cur.slice(i);
+      if (path === OLD_DEFAULT) path = NEW_DEFAULT;
+      next = origin + path;
+      if (next === cur) return;
+    }
+    window.localStorage.setItem('backgroundUrl', JSON.stringify(next));
+  } catch (e) { /* fail open */ }
+})();
