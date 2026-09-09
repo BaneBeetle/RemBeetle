@@ -82,6 +82,16 @@ Delete Project; automation is not allowed to perform deletions), and re-save the
 `REMAI_BACKEND_ORIGIN` variable in `rem-beetle-ydhi` without its leading space (the build trims it
 anyway). Lowering the `www` TTL to 30 minutes at Squarespace is also optional.
 
+## Redesign shipped (2026-09-09)
+
+`main` now carries the "Midnight Companion" shell (`frontend/theme.css`, `frontend/shell.js`,
+self-hosted Bodoni Moda + Source Sans 3 in `frontend/fonts/`, branded loading screen in
+`index.html`; design notes in `frontend/DESIGN.md`) and the webcam framing
+(`frontend/framing.js`; server `model_dict.json` REM `kScale` 0.75, which the app doubles to 1.5).
+The compiled bundle in `frontend/assets/` is untouched; the shell fails open. Two alternative
+directions were built and reviewed on branches `redesign/daylight` and `redesign/editorial`, then
+deleted; `redesign/midnight` stays on GitHub as the merged reference.
+
 ## Runbook
 
 Do the steps in order. Nothing user-facing changes until step 5.
