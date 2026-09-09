@@ -64,13 +64,23 @@ DNS at Squarespace after the cutover:
 | `www` | A | 4 h | `216.198.79.1` (Vercel; Squarespace does not allow changing the type of an existing record, so the CNAME Vercel suggested was not used. Vercel accepts the A record.) |
 | `api` | A | 30 min | `54.196.106.185` (EC2) |
 
-Rollback: set the `@` and `www` records back to `54.196.106.185`. Caddy on EC2 still serves both
-names, so nothing else is needed; propagation takes up to the TTL.
+Rollback: set the `@` and `www` records back to `54.196.106.185`, then on EC2 restore the Caddyfile
+backup that still contains the `rembeetle.com, www.rembeetle.com` block
+(`/etc/caddy/Caddyfile.bak-2026-09-09-012856`) and `sudo systemctl reload caddy`. Propagation takes
+up to the TTL (30 min for `@`, 4 h for `www`).
 
-Still to do, a few days after the cutover once no traffic reaches EC2 for the apex names:
-remove `rembeetle.com, www.rembeetle.com` from the Caddyfile (keep `api.rembeetle.com`), close
-port 12393 in the security group, delete the duplicate Vercel project `rem-beetle`, delete the
-remote branch `vercel-frontend`, and optionally re-save the Vercel env var without its leading space.
+Post-cutover cleanup done on 2026-09-09:
+
+- Caddy on EC2 now serves only `api.rembeetle.com` (apex block removed; backup path above).
+- The backend binds to `127.0.0.1:12393` instead of `0.0.0.0` (`system_config.host` in
+  `/home/ubuntu/RemBeetle/conf.yaml`, backup `conf.yaml.bak-2026-09-09-013000`), so port 12393 is no
+  longer reachable from the internet even though the security group `launch-wizard-1` still lists it.
+- The remote and local `vercel-frontend` branches were deleted; `main` is the only branch.
+
+Still manual, both optional: delete the duplicate Vercel project `rem-beetle` (Settings, General,
+Delete Project; automation is not allowed to perform deletions), and re-save the
+`REMAI_BACKEND_ORIGIN` variable in `rem-beetle-ydhi` without its leading space (the build trims it
+anyway). Lowering the `www` TTL to 30 minutes at Squarespace is also optional.
 
 ## Runbook
 
