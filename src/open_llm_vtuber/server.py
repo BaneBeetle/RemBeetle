@@ -106,7 +106,7 @@ class WebSocketServer:
         self.app.add_middleware(
             CORSMiddleware,
             allow_origins=["*"],
-            allow_credentials=True,
+            allow_credentials=False,  # JWT auth via WebSocket, not cookies
             allow_methods=["*"],
             allow_headers=["*"],
         )

@@ -133,7 +133,12 @@ _upload_rate_limiter = RateLimiter(
 def get_client_identifier(request: Request) -> str:
     """
     Get client identifier for rate limiting
-    Uses IP address, with support for X-Forwarded-For header (behind proxy)
+
+    Uses the connection's client address. Behind the reverse proxy, Uvicorn's
+    proxy-headers support has already set it from X-Forwarded-For, trusting that
+    header only from FORWARDED_ALLOW_IPS (default 127.0.0.1, i.e. Caddy). Reading
+    X-Forwarded-For here directly would let any client pick its own identifier
+    and dodge the limit.
 
     Args:
         request: FastAPI request object
@@ -141,20 +146,15 @@ def get_client_identifier(request: Request) -> str:
     Returns:
         Client identifier string
     """
-    # Check for forwarded IP (behind proxy/load balancer)
-    forwarded_for = request.headers.get("X-Forwarded-For")
-    if forwarded_for:
-        # Take the first IP in the chain (original client)
-        client_ip = forwarded_for.split(",")[0].strip()
-    else:
-        client_ip = request.client.host if request.client else "unknown"
-
-    return client_ip
+    return request.client.host if request.client else "unknown"
 
 
 def get_websocket_identifier(websocket: WebSocket) -> str:
     """
     Get client identifier for WebSocket rate limiting
+
+    Same source as get_client_identifier: the proxy-resolved client address,
+    never the raw X-Forwarded-For header.
 
     Args:
         websocket: WebSocket connection
@@ -162,14 +162,7 @@ def get_websocket_identifier(websocket: WebSocket) -> str:
     Returns:
         Client identifier string
     """
-    # Check for forwarded IP
-    forwarded_for = websocket.headers.get("X-Forwarded-For")
-    if forwarded_for:
-        client_ip = forwarded_for.split(",")[0].strip()
-    else:
-        client_ip = websocket.client.host if websocket.client else "unknown"
-
-    return client_ip
+    return websocket.client.host if websocket.client else "unknown"
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
