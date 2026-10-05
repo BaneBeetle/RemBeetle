@@ -170,28 +170,6 @@ def run(console_log_level: str):
 
     # Run the Uvicorn server
     logger.info(f"Starting server on {server_config.host}:{server_config.port}")
-    # #region agent log
-    import time, json
-    with open("debug.log", "a") as logf:
-        log_entry = {
-            "id": f"log_{int(time.time() * 1000)}",
-            "timestamp": int(time.time() * 1000),
-            "location": "run_server.py:173",
-            "message": "Uvicorn config",
-            "data": {
-                "host": server_config.host,
-                "port": server_config.port,
-                "has_ws_ping_interval": True,
-                "has_ws_ping_timeout": True,
-                "ws_ping_interval": 20,
-                "ws_ping_timeout": 10
-            },
-            "sessionId": "debug-session",
-            "runId": "run1",
-            "hypothesisId": "H1"
-        }
-        logf.write(json.dumps(log_entry) + "\n")
-    # #endregion
     uvicorn.run(
         app=server.app,
         host=server_config.host,

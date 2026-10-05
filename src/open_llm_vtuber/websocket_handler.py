@@ -268,11 +268,6 @@ class WebSocketHandler:
         
         try:
             loop_start_time = time.time()
-            last_activity_time = time.time()
-            # #region agent log
-            with open("debug.log", "a") as logf:
-                logf.write(json.dumps({"id": f"log_{int(time.time() * 1000)}", "timestamp": int(time.time() * 1000), "location": "websocket_handler.py:269", "message": "Communication loop started", "data": {"client_uid": client_uid, "start_time": loop_start_time}, "sessionId": "debug-session", "runId": "run1", "hypothesisId": "H3"}) + "\n")
-            # #endregion
             while True:
                 # Check if connection is still open before receiving
                 # Note: client_state can be CONNECTED, DISCONNECTED, or CONNECTING
@@ -280,26 +275,6 @@ class WebSocketHandler:
                     connection_state = websocket.client_state.name
                     current_time = time.time()
                     elapsed_time = current_time - loop_start_time
-                    # #region agent log
-                    with open("debug.log", "a") as logf:
-                        log_entry = {
-                            "id": f"log_{int(time.time() * 1000)}",
-                            "timestamp": int(time.time() * 1000),
-                            "location": "websocket_handler.py:273",
-                            "message": "Connection state check",
-                            "data": {
-                                "client_uid": client_uid,
-                                "connection_state": connection_state,
-                                "message_count": message_count,
-                                "elapsed_time": elapsed_time,
-                                "idle_time": current_time - last_activity_time
-                            },
-                            "sessionId": "debug-session",
-                            "runId": "run1",
-                            "hypothesisId": "H1"
-                        }
-                        logf.write(json.dumps(log_entry) + "\n")
-                    # #endregion
                     logger.debug(f"[WS DEBUG] Client {client_uid} - Connection state: {connection_state}, Message count: {message_count}, Elapsed: {elapsed_time:.1f}s")
                 except Exception as state_err:
                     logger.warning(f"[WS DEBUG] Client {client_uid} - Could not check connection state: {state_err}")
@@ -309,28 +284,7 @@ class WebSocketHandler:
                     
                 try:
                     logger.debug(f"[WS DEBUG] Client {client_uid} - Waiting for message...")
-                    receive_start_time = time.time()
-                    idle_time = receive_start_time - last_activity_time
-                    # #region agent log
-                    with open("debug.log", "a") as logf:
-                        logf.write(json.dumps({"id": f"log_{int(time.time() * 1000)}", "timestamp": int(time.time() * 1000), "location": "websocket_handler.py:283", "message": "Before receive_json", "data": {"client_uid": client_uid, "idle_time": idle_time, "connection_state": websocket.client_state.name if hasattr(websocket, "client_state") else "unknown"}, "sessionId": "debug-session", "runId": "run1", "hypothesisId": "H3"}) + "\n")
-                    # #endregion
-                    try:
-                        raw_data = await websocket.receive_json()
-                        receive_duration = time.time() - receive_start_time
-                        last_activity_time = time.time()
-                        # #region agent log
-                        with open("debug.log", "a") as logf:
-                            logf.write(json.dumps({"id": f"log_{int(time.time() * 1000)}", "timestamp": int(time.time() * 1000), "location": "websocket_handler.py:284", "message": "After receive_json success", "data": {"client_uid": client_uid, "receive_duration": receive_duration, "message_type": raw_data.get("type") if isinstance(raw_data, dict) else "unknown"}, "sessionId": "debug-session", "runId": "run1", "hypothesisId": "H3"}) + "\n")
-                        # #endregion
-                    except WebSocketDisconnect as ws_err:
-                        disconnect_time = time.time()
-                        total_connection_time = disconnect_time - loop_start_time
-                        # #region agent log
-                        with open("debug.log", "a") as logf:
-                            logf.write(json.dumps({"id": f"log_{int(time.time() * 1000)}", "timestamp": int(time.time() * 1000), "location": "websocket_handler.py:283", "message": "WebSocketDisconnect in receive_json", "data": {"client_uid": client_uid, "total_connection_time": total_connection_time, "idle_time": disconnect_time - last_activity_time, "error": str(ws_err), "code": ws_err.code if hasattr(ws_err, "code") else None}, "sessionId": "debug-session", "runId": "run1", "hypothesisId": "H1"}) + "\n")
-                        # #endregion
-                        raise
+                    raw_data = await websocket.receive_json()
                     message_count += 1
                     logger.info(f"[WS DEBUG] Client {client_uid} - Received message #{message_count}: type={raw_data.get('type')}, keys={list(raw_data.keys())}")
                     
@@ -408,13 +362,7 @@ class WebSocketHandler:
                         logger.error(f"Failed to send error message: {send_err}")
                     continue  # Don't close connection on message processing errors
 
-        except WebSocketDisconnect as ws_disconnect:
-            disconnect_time = time.time()
-            total_connection_time = disconnect_time - loop_start_time if 'loop_start_time' in locals() else 0
-            # #region agent log
-            with open("debug.log", "a") as logf:
-                logf.write(json.dumps({"id": f"log_{int(time.time() * 1000)}", "timestamp": int(time.time() * 1000), "location": "websocket_handler.py:361", "message": "WebSocketDisconnect caught", "data": {"client_uid": client_uid, "total_connection_time": total_connection_time, "messages_processed": message_count, "error": str(ws_disconnect), "code": ws_disconnect.code if hasattr(ws_disconnect, "code") else None, "reason": ws_disconnect.reason if hasattr(ws_disconnect, "reason") else None}, "sessionId": "debug-session", "runId": "run1", "hypothesisId": "H1"}) + "\n")
-            # #endregion
+        except WebSocketDisconnect:
             logger.info(f"[WS DEBUG] Client {client_uid} - WebSocket disconnected normally")
             logger.info(f"[WS DEBUG] Client {client_uid} - Total messages processed: {message_count}")
             raise
