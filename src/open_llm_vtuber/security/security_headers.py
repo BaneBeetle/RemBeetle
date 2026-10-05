@@ -5,8 +5,6 @@ Adds security headers to all HTTP responses
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.responses import Response
-from loguru import logger
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
@@ -31,28 +29,30 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         # Referrer-Policy: Control referrer information
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
 
-        # Permissions-Policy: Restrict browser features
-        response.headers[
-            "Permissions-Policy"
-        ] = "geolocation=(), microphone=(), camera=()"
+        # Permissions-Policy: Restrict unused browser features
+        # microphone and camera are intentionally ALLOWED (voice input + vision)
+        response.headers["Permissions-Policy"] = "geolocation=()"
 
         # Content-Security-Policy: Restrict resource loading
         # Note: This is a basic CSP. Adjust based on your frontend needs
         csp = (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "  # unsafe-eval needed for Live2D
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://esm.sh; "  # unsafe-eval for Live2D, esm.sh for Supabase SDK
             "style-src 'self' 'unsafe-inline'; "
             "img-src 'self' data: blob:; "
             "font-src 'self' data:; "
-            "connect-src 'self' ws: wss:; "
-            "media-src 'self' blob:; "
+            "connect-src 'self' ws: wss: https://*.supabase.co; "  # Supabase auth API
+            "media-src 'self' blob: data:; "  # Added data: for base64 audio
             "frame-ancestors 'none';"
         )
         response.headers["Content-Security-Policy"] = csp
 
-        # Strict-Transport-Security: Force HTTPS (only if using HTTPS)
-        # Note: Only add this if you're serving over HTTPS
-        # if request.url.scheme == "https":
-        #     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        # Strict-Transport-Security: Force HTTPS
+        # Caddy terminates TLS and sets X-Forwarded-Proto
+        forwarded_proto = request.headers.get("x-forwarded-proto", "")
+        if forwarded_proto == "https" or request.url.scheme == "https":
+            response.headers["Strict-Transport-Security"] = (
+                "max-age=31536000; includeSubDomains"
+            )
 
         return response

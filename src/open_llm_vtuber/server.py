@@ -17,6 +17,8 @@ from starlette.staticfiles import StaticFiles as StarletteStaticFiles
 from .routes import init_client_ws_route, init_webtool_routes, init_proxy_route
 from .service_context import ServiceContext
 from .config_manager.utils import Config
+from .security.rate_limiter import RateLimitMiddleware
+from .security.security_headers import SecurityHeadersMiddleware
 
 
 # Create a custom StaticFiles class that adds CORS headers
@@ -101,6 +103,10 @@ class WebSocketServer:
             default_context_cache or ServiceContext()
         )  # Use provided context or initialize a new empty one waiting to be loaded
         # It will be populated during the initialize method call
+
+        # Add security middleware (order matters - security headers first, then rate limiting, then CORS)
+        self.app.add_middleware(SecurityHeadersMiddleware)
+        self.app.add_middleware(RateLimitMiddleware)
 
         # Add global CORS middleware
         self.app.add_middleware(
